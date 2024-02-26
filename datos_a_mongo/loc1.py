@@ -12,7 +12,7 @@ def get_geojson(recursos):
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 db_destinos = myclient["destinos"]
 
-df = pd.read_excel(r"D:\Datos\Destinos\EDU1.xls")
+df = pd.read_excel(r"/var/www/vhosts/dj-pruebas.upv.es/datos/Destinos/EDU1.xls")
 df = df[["Denominacion_Generica_ES", "Regimen", "Localidad", "Denominacion", "long", "lat"]]
 
 locs1 = ['COLEGIO DE EDUCACIÓN INFANTIL Y PRIMARIA',
