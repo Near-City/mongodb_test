@@ -46,3 +46,11 @@ df_LOC1_json = get_geojson(locs1)
 loc1 = db_destinos["LOC_1"]
 loc1.insert_one(df_LOC1_json)
 #geojson_loc1 = list(loc1.find({}))[0]
+
+# Mostrar los datos de ejemplo en el terminal
+
+for document in loc1.find():
+    print(document)
+
+# Cerrar la conexión
+client.close()
