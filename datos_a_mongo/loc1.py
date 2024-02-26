@@ -1,6 +1,8 @@
 import pandas as pd
 from pandas_geojson import to_geojson
 import pymongo
+from urllib.parse import quote_plus
+
 
 def get_geojson(recursos):
     df_EDU = df[df["Denominacion_Generica_ES"].isin(recursos)]
@@ -9,8 +11,23 @@ def get_geojson(recursos):
     return df_EDU_json
 
 
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-db_destinos = myclient["destinos"]
+
+# Configuración de las credenciales y la conexión a MongoDB
+mongodb_host = "172.17.0.2"
+mongodb_port = 27017
+mongodb_username = quote_plus("root")
+mongodb_password = quote_plus("M0ng0@DJ.,")
+database_name = "destinos"
+
+# Establecer la conexión a MongoDB
+client = pymongo.MongoClient(
+    f"mongodb://{mongodb_username}:{mongodb_password}@{mongodb_host}:{mongodb_port}/{database_name}?authSource=admin"
+)
+
+# Obtener la base de datos
+db_destinos = client[database_name]
+
+
 
 df = pd.read_excel(r"/var/www/vhosts/dj-pruebas.upv.es/datos/Destinos/EDU1.xls")
 df = df[["Denominacion_Generica_ES", "Regimen", "Localidad", "Denominacion", "long", "lat"]]
