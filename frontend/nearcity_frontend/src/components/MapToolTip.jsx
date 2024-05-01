@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 const MapToolTip = ({ data, x, y }) => {
   useEffect(() => {
-    console.log('MapToolTip', data, x, y);
+    
     
   }, [data, x, y]);
   return (
