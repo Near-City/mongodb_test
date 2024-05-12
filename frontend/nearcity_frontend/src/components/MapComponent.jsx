@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import * as d3 from 'd3';
 import proj4 from 'proj4';
 import { generateRandomKpi } from '../mixins/geotools.js'
 import MapToolTip from './MapToolTip';
 import FloatingToolbar from './FloatingToolBar.jsx';
+import { geoJson } from 'leaflet';
 // Definiciones de proj4 para la conversión
 proj4.defs('EPSG:25830', '+proj=utm +zone=30 +ellps=GRS80 +units=m +no_defs');
 
@@ -53,6 +55,7 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
     }
   };
 
+
   const getStrokeWidth = (zoomLevel) => { // A más zoom, menos ancho de línea
     return 2/zoomLevel;
   }
@@ -74,11 +77,13 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
 
   // Controlar el formato del GeoJSON y dibujar el Mapa
   useEffect(() => {
+    
     if (!currentData && dataDistritos) {
       console.log('setting current data')
       setCurrentData(dataDistritos);
     } 
     if (currentData && svgRef.current) {
+      console.log(currentData, 'current data')
       onDataChanged(currentData?.title);
       const width = 1900;
       const height = 800;
@@ -94,27 +99,33 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
       TRANSFORMADOS EN UNA VARIABLE GLOBAL, PARA NO TENER QUE HACERLO CADA VEZ QUE SE CAMBIA DE NIVEL DE ZOOM
       
       */ 
-
-      const features = currentData.map(item => ({
-        type: "Feature",
-        properties: {
-          cod: item.cod, // Metadatos
-          KPIs: {
-            'K1': generateRandomKpi(),
-            'K2': generateRandomKpi(),
-          }
-        },
-        geometry: {
-          type: item.geometry.type,
-          coordinates: [convertCoordinates(item.geometry)] // Asegúrate de que esto retorne el formato correcto
+      currentData.features.forEach(feature => {
+        feature.properties.KPIs = {
+          'K1': generateRandomKpi(),
+          'K2': generateRandomKpi(),
         }
-      }));
+      });
+      // const features = currentData.features.map(item => ({
+      //   type: "Feature",
+      //   properties: {
+      //     cod: item.cod, // Metadatos
+      //     KPIs: {
+      //       'K1': generateRandomKpi(),
+      //       'K2': generateRandomKpi(),
+      //     }
+      //   },
+      //   geometry: {
+      //     type: item.geometry.type,
+      //     coordinates: [convertCoordinates(item.geometry)] // Asegúrate de que esto retorne el formato correcto
+      //   }
+      // }));
   
-      const geoJsonData = {
-        type: "FeatureCollection",
-        features: features
-      };
-  
+      // const geoJsonData = {
+      //   type: "FeatureCollection",
+      //   features: features
+      // };
+      const geoJsonData = currentData;
+      console.log(geoJsonData)
       // Configurar proyección, pathGenerator y colorScale
       const projection = d3.geoMercator().fitSize([width, height], geoJsonData);
       const pathGenerator = d3.geoPath().projection(projection);
@@ -122,7 +133,7 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
   
       // Transición suave para eliminar los caminos existentes
       container.selectAll('path')
-        .data(features, d => d.properties) // Usar una clave única si es posible
+        .data(geoJsonData.features, d => d.properties) // Usar una clave única si es posible
         .exit()
         .transition()
         .duration(500)
@@ -131,7 +142,7 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
   
       // Introduce nuevos caminos con una transición
       const paths = container.selectAll('path')
-        .data(features, d => d.properties)
+        .data(geoJsonData.features, d => d.properties)
         .enter()
         .append('path')
         .attr('d', pathGenerator)
@@ -161,6 +172,7 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
           data: d.properties, // Aquí asumimos que las propiedades contienen la información para el tooltip
           position: { x: event.clientX, y: event.clientY }
         });
+        
       })
       .on('mousemove', (event, d) => {
         setTooltip({
@@ -211,6 +223,7 @@ const MapComponent = ({ dataDistritos, dataBarrios, dataSecciones, onDataChanged
       
       }
       <FloatingToolbar onDistricts={() => setZoom(distritosZoom)} onNeighborhoods={() => setZoom(barriosZoom)} onSections={() => setZoom(seccionesZoom)}/>
+
     </div>
 
   

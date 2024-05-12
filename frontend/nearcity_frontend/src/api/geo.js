@@ -20,3 +20,9 @@ export const getSecciones = () => {
   });
 }
 
+export const getParcelas = () => {
+  return axios.get(`${API_URL}parcelas/`).then((response) => {
+    return response.data;
+  });
+}
+

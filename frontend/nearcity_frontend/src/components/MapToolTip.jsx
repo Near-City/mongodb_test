@@ -14,8 +14,8 @@ const MapToolTip = ({ data, x, y }) => {
       pointerEvents: 'none', // Para evitar que el tooltip interfiera con el mouseover
     }}
   >
-    <div className="font-bold">{data.cod && (data?.cod?.N_DIST || data?.cod?.N_BAR)}</div>
-    {data?.cod && Object.keys(data.KPIs).map((item, index) => (
+    <div className="font-bold">{data && (data?.N_DIST || data?.N_BAR)}</div>
+    {data && Object.keys(data.KPIs).map((item, index) => (
       <div key={index}>
         {item}: {data.KPIs[item]}
       </div>
@@ -24,16 +24,16 @@ const MapToolTip = ({ data, x, y }) => {
   );
 };
 
-MapToolTip.propTypes = {
-  data: PropTypes.shape({
-    cod: PropTypes.shape({
-      N_DIST: PropTypes.string.isRequired,
-      N_BAR: PropTypes.string.isRequired,
-    }).isRequired,
-    KPIs: PropTypes.object.isRequired,
-  }).isRequired,
-  x: PropTypes.number.isRequired,
-  y: PropTypes.number.isRequired,
-};
+// MapToolTip.propTypes = {
+//   data: PropTypes.shape({
+//     cod: PropTypes.shape({
+//       N_DIST: PropTypes.string.isRequired,
+//       N_BAR: PropTypes.string.isRequired,
+//     }).isRequired,
+//     KPIs: PropTypes.object.isRequired,
+//   }).isRequired,
+//   x: PropTypes.number.isRequired,
+//   y: PropTypes.number.isRequired,
+// };
 
 export default MapToolTip;

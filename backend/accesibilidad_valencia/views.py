@@ -78,3 +78,13 @@ def get_secciones(request):
 
     # Convierte la lista en una respuesta JSON
     return JsonResponse(data_list, safe=False)
+
+def get_parcelas(request):
+    db = get_mongo_connection()
+    collection = db['parcelas']
+    data = collection.find({})
+    data_list = list(data)
+    data_list = jsonify(data_list)
+
+    # Convierte la lista en una respuesta JSON
+    return JsonResponse(data_list, safe=False)

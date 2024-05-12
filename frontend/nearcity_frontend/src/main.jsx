@@ -7,14 +7,15 @@ import {
 import "./index.css";
 
 import Dashboard from "./views/Dashboard";
+import Test from "./views/Test";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Dashboard />,
   },
   {
-    path: "/dashboard",
-    element: <div > Hello World </div>,
+    path: "/test",
+    element: <Test />
   },
 ]);
 
