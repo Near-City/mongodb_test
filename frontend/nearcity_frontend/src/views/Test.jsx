@@ -7,6 +7,7 @@ import TopBar from "../components/TopBar.jsx";
 import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 
+
 import { getBarrios, getDistritos, getSecciones, getParcelas } from "../api/geo.js";
 
 function Test() {
@@ -45,6 +46,7 @@ function Test() {
     getDistritos().then((data) => {
       if (data.length == 0) return;
       data = data[0];
+      data.title = "Distritos";
       console.log(data);
       setDistritos(data);
       setCurrentData(data);
@@ -55,9 +57,11 @@ function Test() {
 
     getBarrios().then((data) => {
       if (data.length == 0) return;
-      console.log(data[0]);
-      setBarrios(data[0]);
-      setCurrentData(data[0]);
+      data = data[0];
+      data.title = "Barrios";
+      console.log(data);
+      setBarrios(data);
+      setCurrentData(data);
     }
     );
 
@@ -67,6 +71,7 @@ function Test() {
     getSecciones().then((data) => {
       if (data.length == 0) return;
       data = data[0];
+      data.title = "Secciones";
       console.log(data);
       setSecciones(data);
       setCurrentData(data);
@@ -77,6 +82,7 @@ function Test() {
     getParcelas().then((data) => {
       if (data.length == 0) return;
       data = data[0];
+      data.title = "Parcelas";
       console.log(data);
       setParcelas(data);
       setCurrentData(data);
@@ -87,9 +93,10 @@ function Test() {
     getBarrios().then((data) => {
       // data.title = "Barrios";
       if (data.length == 0) return;
-
-      console.log(data[0]);
-      setBarrios(data[0]);
+      data = data[0];
+      data.title = "Barrios";
+      console.log(data);
+      setBarrios(data);
     });
   }, []);
 
@@ -99,6 +106,7 @@ function Test() {
       // data.title = "Distritos";
       if (data.length == 0) return;
       data = data[0];
+      data.title = "Distritos";
       console.log(data);
       setDistritos(data);
       setCurrentData(data);
@@ -112,6 +120,7 @@ function Test() {
       // data.title = "Secciones";
       if (data.length == 0) return;
       data = data[0];
+      data.title = "Secciones";
       console.log(data);
       setSecciones(data);
       
@@ -159,7 +168,7 @@ function Test() {
           console.log(openDrawer);
         }}
       />
-      <section className="flex justify-center items-center">
+      <section className="flex justify-center items-center h-full" >
         {currentData && (
           <BaseMap geojsonData={currentData} requestData={onDataRequested}/>
         )}

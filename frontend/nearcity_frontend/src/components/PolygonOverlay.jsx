@@ -1,18 +1,31 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import * as d3 from 'd3';
+import { generateRandomKpi } from '../mixins/geotools.js';
 
-const PolygonOverlay = ({ geojsonData }) => {
+const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
   const map = useMap();
+  const layerGroupRef = useRef(L.layerGroup());
+
+  useImperativeHandle(ref, () => ({
+    getLayer: () => layerGroupRef.current
+  }));
 
   useEffect(() => {
     if (!geojsonData) return;
 
-    const svgLayer = L.svg({ interactive: true }).addTo(map); // Asegúrate de que el SVG permite interacción
-    const svg = d3.select(svgLayer._container).select('g').attr('class', 'leaflet-zoom-hide'); // Usa 'g' para agrupar polígonos
+    // Clear the current layer group
+    layerGroupRef.current.clearLayers();
 
-    // Define la función de proyección para transformar las coordenadas geográficas a puntos en el mapa
+    const svgLayer = L.svg({ interactive: true });
+    layerGroupRef.current.addLayer(svgLayer).addTo(map);
+
+    const svg = d3.select(svgLayer._container).select('g').attr('class', 'leaflet-zoom-hide');
+    svg.attr('pointer-events', 'auto');
+
+    const colorScale = d3.scaleSequential().domain([0, 1]).interpolator(d3.interpolateBlues);
+
     const projectPoint = function(x, y) {
       const point = map.latLngToLayerPoint(new L.LatLng(y, x));
       this.stream.point(point.x, point.y);
@@ -21,29 +34,42 @@ const PolygonOverlay = ({ geojsonData }) => {
     const transform = d3.geoTransform({ point: projectPoint });
     const path = d3.geoPath().projection(transform);
 
-    // Añade los elementos del GeoJSON al grupo SVG
+    const getColor = (d) => {
+      const value = d.properties[indicator] / 100;
+      return colorScale(value);
+    };
+
     const feature = svg.selectAll("path")
       .data(geojsonData.features)
       .join("path")
         .attr("d", path)
-        .attr("fill", "#3366cc") // Color de relleno
-        .attr("stroke", "#fff")  // Color del borde
-        .attr("stroke-width", 1);
+        .attr("fill", getColor)
+        .attr("fill-opacity", 0.8)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1)
+        .attr("class", "leaflet-interactive")
+        .on("mouseover", function() {
+          d3.select(this).attr("fill-opacity", 1);
+        })
+        .on("mouseout", function() {
+          d3.select(this).attr("fill-opacity", 0.8);
+        });
 
-    // Actualiza el path cuando el mapa cambia de zoom o posición
     const update = () => {
       feature.attr("d", path);
     };
 
-    map.on('zoomend viewreset moveend', update); // Escucha los eventos de cambio de zoom y posición
+    map.on('zoomend viewreset moveend', update);
 
     return () => {
-      map.off('zoomend viewreset moveend', update); // Limpia los eventos al desmontar
-      svgLayer.remove(); // Elimina la capa SVG
+      map.off('zoomend viewreset moveend', update);
+      svgLayer.remove();
     };
-  }, [geojsonData, map]); // Reactiva el efecto cuando geojsonData o map cambian
+  }, [geojsonData, map, indicator]);
 
   return null;
-};
+});
+
+PolygonOverlay.displayName = 'PolygonOverlay';
 
 export default PolygonOverlay;
