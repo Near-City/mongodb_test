@@ -82,9 +82,36 @@ def get_secciones(request):
 def get_parcelas(request):
     db = get_mongo_connection()
     collection = db['parcelas']
-    data = collection.find({})
-    data_list = list(data)
-    data_list = jsonify(data_list)
 
-    # Convierte la lista en una respuesta JSON
-    return JsonResponse(data_list, safe=False)
+    
+    north = float(request.GET.get('north'))
+    south = float(request.GET.get('south'))
+    east = float(request.GET.get('east'))
+    west = float(request.GET.get('west'))
+
+    # Preparar la consulta geoespacial
+    query = {
+        'geometry': {
+            '$geoWithin': {
+                '$geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [[
+                        [west, south], [east, south],
+                        [east, north], [west, north],
+                        [west, south]  
+                    ]]
+                }
+            }
+        }
+    }
+
+   
+    data = collection.find(query)
+    data_list = list(data)
+
+   
+    from bson import json_util
+    data_json = json_util.dumps(data_list)
+
+    # Devolver la respuesta JSON
+    return JsonResponse(data_json, safe=False, json_dumps_params={'indent': 2})

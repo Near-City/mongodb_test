@@ -20,8 +20,9 @@ export const getSecciones = () => {
   });
 }
 
-export const getParcelas = () => {
-  return axios.get(`${API_URL}parcelas/`).then((response) => {
+export const getParcelas = (bounds) => { // las bounds son las coordenadas del mapa para renderizar las parcelas
+  const { north, south, east, west} = bounds;
+  return axios.get(`${API_URL}parcelas?north=${north}&south=${south}&east=${east}&west=${west}`).then((response) => {
     return response.data;
   });
 }

@@ -48,6 +48,22 @@ const ZoomDataHandler = ({ requestData }) => {
   return null;
 };
 
+const DynamicDataHandler = ({ a }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.on("moveend", async () => {
+      console.log("Map moved");
+      const bounds = map.getBounds();
+      // const { north, south, east, west } = bounds.toBBoxString().split(',');
+      // console.log(north, south, east, west);
+      const coords = bounds.toBBoxString().split(',');
+      console.log(coords);
+    })
+
+  }, [map]);
+  return null;
+}
+
 const BaseMap = ({ geojsonData, requestData }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [viewInfo, setViewInfo] = useState(null);
@@ -98,6 +114,7 @@ const BaseMap = ({ geojsonData, requestData }) => {
         <GeoJSON data={geojsonData} style={{ color: "blue" }} />
         <PolygonManager geojsonData={geojsonData} swipeOpen={swipeMenuOpen}/>
         <ZoomDataHandler requestData={requestData} />
+        <DynamicDataHandler />
       </MapContainer>
       <div id="map-overlay" className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="relative w-full h-full pointer-events-auto">

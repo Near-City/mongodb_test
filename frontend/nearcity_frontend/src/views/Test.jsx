@@ -128,15 +128,15 @@ function Test() {
   }, []);
 
   // Sacar los datos de la API sobre las PARCELAS
-  useEffect(() => {
-    getParcelas().then((data) => {
-      // data.title = "Parcelas";
-      if (data.length == 0) return;
-      data = data[0];
-      console.log(data);
+  // useEffect(() => {
+  //   getParcelas().then((data) => {
+  //     // data.title = "Parcelas";
+  //     if (data.length == 0) return;
+  //     data = data[0];
+  //     console.log(data);
       
-    });
-  }, []);
+  //   });
+  // }, []);
 
 
 
