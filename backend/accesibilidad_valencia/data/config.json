@@ -1,0 +1,42 @@
+{
+  "polygons": {
+    "D": {
+      "name": "districts",
+      "collection": "distritos",
+      "zoomRange": [9, 12],
+      "lazyLoading": false,
+      "saveToCache": true
+    },
+    "B": {
+      "name": "neighborhoods",
+      "collection": "barrios",
+      "zoomRange": [13, 14],
+      "lazyLoading": false,
+      "saveToCache": true
+    },
+    "SC": {
+      "name": "sections",
+      "collection": "secciones",
+      "zoomRange": [15, 17],
+      "lazyLoading": false,
+      "saveToCache": true
+    },
+    "PC": {
+      "name": "plots",
+      "collection": "parcelas",
+      "zoomRange": [18, 19],
+      "lazyLoading": true,
+      "saveToCache": false
+    }
+  },
+  "points": {
+    "CO": { "name": "schools", "collection": "colegios" },
+    "HO": { "name": "hospitals", "collection": "hospitales" },
+    "PA": { "name": "parks", "collection": "parques" },
+    "CS": { "name": "healthCenters", "collection": "centros_salud" }
+  },
+  "defaults": {
+    "polygon": "D",
+    "point": "CO"
+  }
+}

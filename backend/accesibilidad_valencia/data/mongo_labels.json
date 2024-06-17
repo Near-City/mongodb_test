@@ -1,0 +1,12 @@
+{
+    "polygons": {
+      "districts": "distritos",
+      "neighborhoods": "barrios",
+      "censusSections": "secciones",
+      "parcels": "parcelas"
+    },
+    "points": {
+      "schools": "loc2"
+    }
+}
+  

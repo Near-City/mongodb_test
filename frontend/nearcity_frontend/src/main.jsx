@@ -8,6 +8,8 @@ import "./index.css";
 
 import Dashboard from "./views/Dashboard";
 import Test from "./views/Test";
+
+import { ConfigProvider } from "./contexts/configContext";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -21,6 +23,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ConfigProvider>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   </React.StrictMode>
 );

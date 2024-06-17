@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import PolygonOverlay from "./PolygonOverlay";
 import valenciaBounds from "../data/geojson/valencia_boundary.json";
@@ -9,62 +9,65 @@ import SwipeMenu from "./uiMapComponents/DraggableMenus/SwipeMenu.jsx";
 import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
 import PolygonManager from "./PolygonManager";
 
+import { getParcelas } from "../api/geo";
+
+import ConfigContext from '../contexts/configContext';
+
 const MapBounds = () => {
   const map = useMap();
   useEffect(() => {
     const bounds = L.geoJSON(valenciaBounds).getBounds();
     map.fitBounds(bounds);
     map.setMaxBounds(bounds);
-    map.setMinZoom(map.getZoom());
-  }, [map]);
-  return null;
-};
-const distritos_zoom = [10, 12];
-const barrios_zoom = [13, 14];
-const secciones_zoom = [15, 17];
-const parcelas_zoom = [18, 19];
-const ZoomDataHandler = ({ requestData }) => {
-  const map = useMap();
-  const handleZoomLevel = (zoom) => {
-    console.log("Zoom level: ", zoom);
-
-
-    if (zoom >= distritos_zoom[0] && zoom <= distritos_zoom[1]) {
-      requestData("distritos");
-    } else if (zoom >= barrios_zoom[0] && zoom <= barrios_zoom[1]) {
-      requestData("barrios");
-    } else if (zoom >= secciones_zoom[0] && zoom <= secciones_zoom[1]) {
-      requestData("secciones");
-    } else if (zoom >= parcelas_zoom[0] && zoom <= parcelas_zoom[1]) {
-      requestData("parcelas");
-    }
-  };
-  useEffect(() => {
-    map.on("zoomend", () => {
-      const zoom = map.getZoom();
-      handleZoomLevel(zoom);
-    });
+    map.setMinZoom(9);
   }, [map]);
   return null;
 };
 
-const DynamicDataHandler = ({ a }) => {
+const DynamicDataHandler = ({ onUserMovedMap }) => {
+  const config = useContext(ConfigContext);
+
   const map = useMap();
   useEffect(() => {
-    map.on("moveend", async () => {
+    const handleMoveEnd = async () => {
       console.log("Map moved");
       const bounds = map.getBounds();
-      // const { north, south, east, west } = bounds.toBBoxString().split(',');
-      // console.log(north, south, east, west);
+      const zoom = map.getZoom();
       const coords = bounds.toBBoxString().split(',');
-      console.log(coords);
-    })
+      if (coords?.length !== 4) return;
+      const minX = parseFloat(coords[0]);
+      const minY = parseFloat(coords[1]);
+      const maxX = parseFloat(coords[2]);
+      const maxY = parseFloat(coords[3]);
+      console.log(minX, minY, maxX, maxY);
+      const mapBounds = { north: maxY, south: minY, east: maxX, west: minX };
+      onUserMovedMap(zoom, mapBounds);
+    };
 
-  }, [map]);
+    map.on("moveend", handleMoveEnd);
+
+    return () => {
+      map.off("moveend", handleMoveEnd);
+    };
+  }, [map, onUserMovedMap]);
+
+  // useEffect(() => {
+  //   const handleZoomEnd = async () => {
+  //     console.log("Map zoomed");
+  //     const zoom = map.getZoom();
+  //     onZoomChanged(zoom);
+  //   };
+
+  //   map.on("zoomend", handleZoomEnd);
+
+  //   return () => {
+  //     map.off("zoomend", handleZoomEnd);
+  //   };
+  // }, [map]);
   return null;
 }
 
-const BaseMap = ({ geojsonData, requestData }) => {
+const BaseMap = ({ areasData, onUserMovedMap }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [viewInfo, setViewInfo] = useState(null);
 
@@ -73,13 +76,13 @@ const BaseMap = ({ geojsonData, requestData }) => {
 
 
   useEffect(() => {
-    if (geojsonData.title){
+    if (areasData.title){
       const info = {
-        title: geojsonData.title,
+        title: areasData.title,
       }
       setViewInfo(info);
     }
-  }, [geojsonData]);
+  }, [areasData]);
   
   const handleSwipeMenuToggle = () => {
     setSwipeMenuOpen(!swipeMenuOpen);
@@ -111,10 +114,10 @@ const BaseMap = ({ geojsonData, requestData }) => {
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <GeoJSON data={geojsonData} style={{ color: "blue" }} />
-        <PolygonManager geojsonData={geojsonData} swipeOpen={swipeMenuOpen}/>
-        <ZoomDataHandler requestData={requestData} />
-        <DynamicDataHandler />
+        <GeoJSON data={areasData} style={{ color: "blue" }} />
+        <PolygonManager geojsonData={areasData} swipeOpen={swipeMenuOpen}/>
+        <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
+        <MapBounds />
       </MapContainer>
       <div id="map-overlay" className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="relative w-full h-full pointer-events-auto">

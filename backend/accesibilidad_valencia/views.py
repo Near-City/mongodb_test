@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .mongo import get_mongo_connection
-
+from .mongo import get_mongo_connection, get_geospatial_data
+from .utils import build_geojson_from_features
 # Create your views here.
 
 
@@ -8,6 +8,23 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .mongo import get_mongo_connection
 import json
+from django.views import View
+
+# Carga del archivo de configuración
+with open('accesibilidad_valencia/data/config.json') as f:
+    config = json.load(f)
+
+db = get_mongo_connection()
+
+def get_config(request):
+    # No enviar nombres de colecciones al frontend
+    frontend_config = {
+        "polygons": {key: {"code": value["code"]} for key, value in config["polygons"].items()},
+        "points": {key: {"code": value["code"]} for key, value in config["points"].items()}
+    }
+    data = jsonify(frontend_config)
+    return JsonResponse(data, safe=False)
+
 
 def map_view(request):
     # Conectar a MongoDB y obtener datos
@@ -88,7 +105,7 @@ def get_parcelas(request):
     south = float(request.GET.get('south'))
     east = float(request.GET.get('east'))
     west = float(request.GET.get('west'))
-
+    print(north, south, east, west)
     # Preparar la consulta geoespacial
     query = {
         'geometry': {
@@ -115,3 +132,46 @@ def get_parcelas(request):
 
     # Devolver la respuesta JSON
     return JsonResponse(data_json, safe=False, json_dumps_params={'indent': 2})
+
+
+
+class ConfigView(View):
+    def get(self, request):
+        black_list = ['_id', 'collection']
+        frontend_config = {key: {k: v for k, v in value.items() if k not in black_list} for key, value in config.items()}
+        return JsonResponse(frontend_config)
+
+class PolygonsView(View):
+    def get(self, request, type_code):
+        polygon = config['polygons'].get(type_code)
+        if polygon is None:
+            return JsonResponse({"error": "Invalid polygon type"}, status=400)
+        
+        collection_name = polygon['collection']
+
+        if collection_name:
+            collection = db[collection_name]
+            bounds = request.GET.get('bounds')
+            polygons = get_geospatial_data(collection_name, bounds)
+            if config['polygons'][type_code].get('lazyLoading'):
+                # Si hay LazyLoading, significa que hay index2dsphere, por lo que mongo no devuelve los datos en un geojson con sus features y demás
+                # sino que devuelve una lista de diccionarios con los datos de los polígonos
+               polygons = build_geojson_from_features(polygons)
+            return JsonResponse(polygons, safe=False)
+        else:
+            return JsonResponse({"error": "Invalid polygon type"}, status=400)
+
+class PointsView(View):
+    def get(self, request, type_code):
+        points = config['points'].get(type_code)
+        if points is None:
+            return JsonResponse({"error": "Invalid point type"}, status=400)
+        collection_name = points['collection']
+        
+        if collection_name:
+            collection = db[collection_name]
+            bounds = request.GET.get('bounds')
+            points = get_geospatial_data(collection_name, bounds)
+            return JsonResponse(points, safe=False)
+        else:
+            return JsonResponse({"error": "Invalid point type"}, status=400)
