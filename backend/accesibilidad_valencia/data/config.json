@@ -17,14 +17,14 @@
     "SC": {
       "name": "sections",
       "collection": "secciones",
-      "zoomRange": [15, 17],
+      "zoomRange": [15, 16],
       "lazyLoading": false,
       "saveToCache": true
     },
     "PC": {
       "name": "plots",
       "collection": "parcelas",
-      "zoomRange": [18, 19],
+      "zoomRange": [17, 19],
       "lazyLoading": true,
       "saveToCache": false
     }

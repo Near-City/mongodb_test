@@ -2,7 +2,6 @@ import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import * as d3 from 'd3';
-import { generateRandomKpi } from '../mixins/geotools.js';
 
 const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
   const map = useMap();

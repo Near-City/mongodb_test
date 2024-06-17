@@ -5,6 +5,7 @@ import valenciaBounds from "../data/geojson/valencia_boundary.json";
 import ButtonGroup from "./uiMapComponents/uiModels/ButtonGroup.jsx";
 import { Bars2Icon } from '@heroicons/react/24/solid'
 
+
 import SwipeMenu from "./uiMapComponents/DraggableMenus/SwipeMenu.jsx";
 import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
 import PolygonManager from "./PolygonManager";

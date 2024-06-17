@@ -72,7 +72,7 @@ function Test() {
         console.log("Polygons already loaded: ", type);
         setPolygons(polygons);
         return resolve();
-      } else {
+      } else if (bounds) {
         console.log("Loading polygons: ", type);
         get_polygons(type, bounds)
           .then((data) => {
