@@ -68,22 +68,11 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
   return null;
 }
 
-const BaseMap = ({ areasData, onUserMovedMap }) => {
+const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
-  const [viewInfo, setViewInfo] = useState(null);
+  
 
-  const overlayRef1 = useRef(null);
-  const overlayRef2 = useRef(null);
-
-
-  useEffect(() => {
-    if (areasData.title){
-      const info = {
-        title: areasData.title,
-      }
-      setViewInfo(info);
-    }
-  }, [areasData]);
+  
   
   const handleSwipeMenuToggle = () => {
     setSwipeMenuOpen(!swipeMenuOpen);

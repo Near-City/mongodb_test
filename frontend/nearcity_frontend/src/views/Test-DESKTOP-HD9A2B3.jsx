@@ -4,7 +4,8 @@ import BaseMap from "../components/BaseMap.jsx";
 import SidePanel from "../components/SidePanel.jsx";
 import MapToolbar from "../components/MapToolBar.jsx";
 import TopBar from "../components/TopBar.jsx";
-import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
+import { MapContainer, TileLayer } from "react-leaflet";
+import L from "leaflet";
 
 import { getConfig, get_polygons, get_points } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext";
@@ -12,7 +13,7 @@ import { inRange } from "../mixins/utils.js";
 
 function Test() {
   const config = useContext(ConfigContext);
-  const [activePanel, setActivePanel] = useState("home");
+
   const [barrios, setBarrios] = useState(null);
   const [distritos, setDistritos] = useState(null);
   const [secciones, setSecciones] = useState(null);
@@ -155,27 +156,24 @@ function Test() {
 
   if (!config) return <div>Loading...</div>;
   return (
-    <div className="flex flex-col h-screen ">
+    <>
       <TopBar
         onMenuClick={() => {
           setOpenDrawer(!openDrawer);
           console.log(openDrawer);
         }}
       />
-      <div className="flex flex-1 relative">
-        <SidebarMenu navbarHeight="64px" />
-        <div className="flex-1 overflow-hidden">
-          {polygons && currentPolygonsType && (
-            <BaseMap
-              areasData={polygons}
-              requestData={onDataRequested}
-              onUserMovedMap={handleUserMovedMap}
-              viewInfo={config.polygons[currentPolygonsType]?.name}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+      <section className="flex justify-center items-center h-full">
+        {polygons && currentPolygonsType && (
+          <BaseMap
+            areasData={polygons}
+            requestData={onDataRequested}
+            onUserMovedMap={handleUserMovedMap}
+          />
+        )}
+        {/* <SidePanel open={openDrawer}  onFilterByName={(name) => {console.log(distritos); filter(name)}} /> */}
+      </section>
+    </>
   );
 }
 
