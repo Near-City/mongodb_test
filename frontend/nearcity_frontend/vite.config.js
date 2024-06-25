@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@components': resolve(__dirname, 'src/components'),
+      '@contexts': resolve(__dirname, 'src/contexts'),
+      '@mixins': resolve(__dirname, 'src/mixins'),
     },
   },
 });

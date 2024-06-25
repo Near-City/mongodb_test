@@ -30,7 +30,12 @@
     }
   },
   "points": {
-    "CO": { "name": "schools", "collection": "colegios" },
+    "CO": {
+      "name": "schools",
+      "collection": "colegios",
+      "lazyLoading": true,
+      "saveToCache": false
+    },
     "HO": { "name": "hospitals", "collection": "hospitales" },
     "PA": { "name": "parks", "collection": "parques" },
     "CS": { "name": "healthCenters", "collection": "centros_salud" }
@@ -38,5 +43,49 @@
   "defaults": {
     "polygon": "D",
     "point": "CO"
+  },
+  "schema": {
+    "options": {
+      "loc1": {
+        "extra": ["pub", "con", "total"],
+        "time": ["5", "10", "15", "20"],
+        "user": ["normativo", "niño", "movilidad_reducida"],
+        "area": ["D", "B", "SC", "PC"]
+      },
+      "loc2": {
+        "extra": ["pub", "con", "total"],
+        "time": ["5", "10", "15", "20"],
+        "user": ["normativo", "niño", "movilidad_reducida"],
+        "area": ["D", "B", "SC", "PC"]
+      }
+    },
+    "labels": {
+      "locs": {
+        "loc1": "Colegios",
+        "loc2": "Hospitales"
+      },
+      "extra": {
+        "pub": "Públicos",
+        "con": "Concertados",
+        "total": "Total"
+      },
+      "time": {
+        "5": "5 min",
+        "10": "10 min",
+        "15": "15 min",
+        "20": "20 min"
+      },
+      "user": {
+        "normativo": "Normativo",
+        "niño": "Niño",
+        "movilidad_reducida": "Movilidad reducida"
+      },
+      "area": {
+        "D": "Distrito",
+        "B": "Barrio",
+        "SC": "Sección",
+        "PC": "Parcela"
+      }
+    }
   }
 }
