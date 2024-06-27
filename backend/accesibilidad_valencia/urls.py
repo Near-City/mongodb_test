@@ -1,6 +1,6 @@
 from django.urls import path
 # from . import views
-from .views import ConfigView, PolygonsView, PointsView
+from .views import ConfigView, PolygonsView, PointsView, IndicatorsView
 
 
 app_name = 'accesibilidad_valencia'
@@ -17,4 +17,5 @@ urlpatterns = [
     path('api/config/', ConfigView.as_view(), name='config'),
     path('api/polygons/<str:type_code>/', PolygonsView.as_view(), name='polygons'),
     path('api/points/<str:type_code>/', PointsView.as_view(), name='points'),
+    path('api/indicators/', IndicatorsView.as_view(), name='indicators')
 ]

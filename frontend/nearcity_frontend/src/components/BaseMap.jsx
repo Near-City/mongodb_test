@@ -71,7 +71,10 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
 const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   
-
+  useEffect(() => {
+    debugger
+    console.log(areasData)
+  }, [areasData])
   
   
   const handleSwipeMenuToggle = () => {

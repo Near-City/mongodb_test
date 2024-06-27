@@ -1,15 +1,23 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useContext } from "react";
 import { useMap } from "react-leaflet";
 import "leaflet-side-by-side";
 import L from "leaflet";
 import PolygonOverlay from "./PolygonOverlay";
 
+import CurrentIndicatorContext from "@contexts/indicatorContext";
+
 const PolygonManager = ({ geojsonData, swipeOpen }) => {
   const map = useMap();
   const overlayRef1 = useRef(null);
   const overlayRef2 = useRef(null);
+  const { currentIndicator, setCurrentIndicator } = useContext(CurrentIndicatorContext);
 
   useEffect(() => {
+    console.log(geojsonData)
+  }, [geojsonData])
+
+  useEffect(() => {
+    
     // Crear paneles personalizados antes de añadir capas
     if (!map.getPane('leftPane')) {
       map.createPane('leftPane');
@@ -40,7 +48,7 @@ const PolygonManager = ({ geojsonData, swipeOpen }) => {
 
   return (
     <>
-      <PolygonOverlay geojsonData={geojsonData} indicator="K1" pane="leftPane" ref={overlayRef1} />
+      <PolygonOverlay geojsonData={geojsonData} indicator={currentIndicator} pane="leftPane" ref={overlayRef1} />
       {swipeOpen && <PolygonOverlay geojsonData={geojsonData} indicator="K2" pane="rightPane" ref={overlayRef2} />}
     </>
   );

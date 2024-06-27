@@ -40,6 +40,8 @@ function Test() {
   useEffect(() => {
     if (!currentPolygonsType) return;
     refreshPolygons(currentPolygonsType);
+    console.log("Current polygons type: ", currentPolygonsType);
+    
   }, [currentPolygonsType]);
 
   useEffect(() => {
@@ -69,6 +71,7 @@ function Test() {
       let polygons = loadedPolygons[type];
       if (polygons) {
         console.log("Polygons already loaded: ", type);
+        console.log(polygons);
         setPolygons(polygons);
         return resolve();
       } else if (bounds) {
@@ -78,6 +81,7 @@ function Test() {
             const polygonsData = data;
             // NO guardamos los polígonos en el estado, solo los mostramos
             // setLoadedPolygons((prev) => ({ ...prev, [type]: polygonsData }));
+            
             setPolygons(polygonsData);
             console.log("Polygons loaded: ", type);
             resolve();
@@ -94,7 +98,7 @@ function Test() {
       if (!polygon.saveToCache) return;
       promises.push(
         get_polygons(key)
-          .then((data) => ({ [key]: data[0] }))
+          .then((data) => ({ [key]: data }))
           .catch((error) => console.error(error))
       );
 

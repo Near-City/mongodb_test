@@ -9,6 +9,7 @@ export default defineConfig({
       '@components': resolve(__dirname, 'src/components'),
       '@contexts': resolve(__dirname, 'src/contexts'),
       '@mixins': resolve(__dirname, 'src/mixins'),
+      '@api': resolve(__dirname, 'src/api'),
     },
   },
 });

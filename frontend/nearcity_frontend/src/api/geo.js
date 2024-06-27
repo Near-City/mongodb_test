@@ -46,12 +46,20 @@ export const get_polygons = (type_code, bounds = null) => {
     boundsQuery = `?bounds=${north},${south},${east},${west}`;
   }
   return api.get(`${API_URL}polygons/${type_code}/${boundsQuery}`).then((response) => {
+    console.log("Data: ", response);
     return response.data;
   });
 }
 
 export const get_points = (type_code) => {
   return api.get(`${API_URL}points/${type_code}/`).then((response) => {
+    return response.data;
+  });
+}
+
+export const get_indicators = (area, resource, extra, time, user) => {
+  const query = `?area=${area}&resource=${resource}&extra=${extra}&time=${time}&user=${user}`;
+  return api.get(`${API_URL}indicators/?area=${area}&resource=${resource}&time=${time}&extra=${extra}`).then((response) => {
     return response.data;
   });
 }

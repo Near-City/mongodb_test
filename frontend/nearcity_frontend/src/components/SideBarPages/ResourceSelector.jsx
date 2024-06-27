@@ -3,9 +3,15 @@ import React from 'react';
 import { useEffect, useState, useContext } from "react";
 import ExecuteBtn from "@components/Buttons/ExecuteBtn";
 import ConfigContext from "@contexts/configContext";
+import CurrentIndicatorContext from "@contexts/indicatorContext";
 import { getValueLabelFromSeparatedObjects, getValueLabelFromListAndObject } from "@mixins/utils";
+
+import { get_indicators } from "@api/geo";
+
 const ResourceSelector = ({}) => {
     const config = useContext(ConfigContext);
+    const {currentIndicator, setCurrentIndicator} = useContext(CurrentIndicatorContext);
+
     const [selectedResource, setSelectedResource] = useState(null);
     const [selectedExtra, setSelectedExtra] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
@@ -34,6 +40,11 @@ const ResourceSelector = ({}) => {
         setSelectedExtra(value);
     }
 
+    const handleTimeChange = (value) => {
+        console.log("Time changed: ", value);
+        setSelectedTime(value);
+    }
+
     useEffect(() => {
         console.log("Config changed: ", config);
         if (!config) return;
@@ -43,17 +54,20 @@ const ResourceSelector = ({}) => {
 
     }, [config])
 
-    // const resources = [
-    //     { value: "Colegios", label: "Colegios" },
-    //     { value: "Hospitales", label: "Hospitales" },
-    //     { value: "Farmacias", label: "Farmacias" },
-    //     { value: "Supermercados", label: "Supermercados" },
-    //     { value: "Bancos", label: "Bancos" },
-    //     { value: "Paradas de bus", label: "Paradas de bus" },
-    //     { value: "Paradas de metro", label: "Paradas de metro" },
-    //     { value: "Parques", label: "Parques" },
-    // ]
-
+    const executeQuery = () => {
+        console.log("Executing query");
+        console.log("Resource: ", selectedResource);
+        console.log("Extra: ", selectedExtra);
+        console.log("Time: ", selectedTime);
+        console.log("User: ", selectedUser);
+        get_indicators("distritos", selectedResource, selectedExtra, selectedTime, selectedUser).then((data) => {
+            console.log("NUEVO INDICADOR: ", data);
+            console.log("Current indicator: ", currentIndicator);
+            setCurrentIndicator(data);
+        }).catch((error) => {
+            console.error("Error fetching data: ", error);
+        });
+    }
     
 
     return (
@@ -63,11 +77,11 @@ const ResourceSelector = ({}) => {
                 { selectedResource && extraOptions && <SelectComponent items={extraOptions} onChange={handleExtraChange} selectedValue={selectedExtra} /> }
             </div>
             { selectedResource && timeOptions && userOptions && <div className="flex gap-5"> 
-                <SelectComponent items={timeOptions} selectedValue={selectedTime} />
+                <SelectComponent items={timeOptions} selectedValue={selectedTime} onChange={handleTimeChange} />
                 <SelectComponent items={userOptions} selectedValue={selectedUser} />
                 </div>}
 
-            <ExecuteBtn />
+            <ExecuteBtn onClick={executeQuery}/>
         </div>
 
     );

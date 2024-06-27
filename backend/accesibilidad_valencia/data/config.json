@@ -46,13 +46,19 @@
   },
   "schema": {
     "options": {
-      "loc1": {
+      "loc2": {
         "extra": ["pub", "con", "total"],
         "time": ["5", "10", "15", "20"],
         "user": ["normativo", "niño", "movilidad_reducida"],
         "area": ["D", "B", "SC", "PC"]
       },
-      "loc2": {
+      "loc3": {
+        "extra": ["pub", "con", "total"],
+        "time": ["5", "10", "15", "20"],
+        "user": ["normativo", "niño", "movilidad_reducida"],
+        "area": ["D", "B", "SC", "PC"]
+      },
+      "loc4": {
         "extra": ["pub", "con", "total"],
         "time": ["5", "10", "15", "20"],
         "user": ["normativo", "niño", "movilidad_reducida"],
@@ -62,7 +68,9 @@
     "labels": {
       "locs": {
         "loc1": "Colegios",
-        "loc2": "Hospitales"
+        "loc2": "Hospitales",
+        "loc3": "Parques",
+        "loc4": "Centros de Salud"
       },
       "extra": {
         "pub": "Públicos",

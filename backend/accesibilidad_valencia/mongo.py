@@ -31,3 +31,20 @@ def get_geospatial_data(collection_name, bounds = None):
         }
     }, {'_id': 0}))
     return data
+
+def get_indicadores_accesibilidad(area = None, resource = None, extra = None, time = None, user = None):
+    global db
+    collection_name = "indicadores_accesibilidad"
+    collection = db[collection_name]
+    query = {}
+    if area is not None:
+        query['area'] = area
+    if resource is not None:
+        query['resource'] = resource
+    if extra is not None:
+        query['extra'] = extra
+    if time is not None:
+        query['time'] = int(time)
+    result = collection.find(query)
+    
+    return {r['area_id']: r['value'] for r in result}

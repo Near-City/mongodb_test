@@ -14,6 +14,7 @@ const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
   useEffect(() => {
     if (!geojsonData) return;
 
+    console.log(geojsonData)
     // Clear the current layer group
     layerGroupRef.current.clearLayers();
 
@@ -34,7 +35,10 @@ const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
     const path = d3.geoPath().projection(transform);
 
     const getColor = (d) => {
-      const value = d.properties[indicator] / 100;
+      if (!d.properties.area_id || !indicator || !indicator[d.properties.area_id]) return 1;
+      const value = indicator[d.properties.area_id] * 10;
+      console.log(indicator)
+      console.log(d.properties.area_id)
       return colorScale(value);
     };
 
