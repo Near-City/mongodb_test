@@ -3,8 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import PolygonOverlay from "./PolygonOverlay";
 import valenciaBounds from "../data/geojson/valencia_boundary.json";
 import ButtonGroup from "./uiMapComponents/uiModels/ButtonGroup.jsx";
-import { Bars2Icon } from '@heroicons/react/24/solid'
-
+import { Bars2Icon } from "@heroicons/react/24/solid";
 
 import SwipeMenu from "./uiMapComponents/DraggableMenus/SwipeMenu.jsx";
 import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
@@ -12,14 +11,14 @@ import PolygonManager from "./PolygonManager";
 
 import { getParcelas } from "../api/geo";
 
-import ConfigContext from '../contexts/configContext';
+import ConfigContext from "../contexts/configContext";
 
 const MapBounds = () => {
   const map = useMap();
   useEffect(() => {
-    const bounds = L.geoJSON(valenciaBounds).getBounds();
-    map.fitBounds(bounds);
-    map.setMaxBounds(bounds);
+    // const bounds = L.geoJSON(valenciaBounds).getBounds();
+    // map.fitBounds(bounds);
+    // map.setMaxBounds(bounds);
     map.setMinZoom(9);
   }, [map]);
   return null;
@@ -34,7 +33,7 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
       console.log("Map moved");
       const bounds = map.getBounds();
       const zoom = map.getZoom();
-      const coords = bounds.toBBoxString().split(',');
+      const coords = bounds.toBBoxString().split(",");
       if (coords?.length !== 4) return;
       const minX = parseFloat(coords[0]);
       const minY = parseFloat(coords[1]);
@@ -66,20 +65,18 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
   //   };
   // }, [map]);
   return null;
-}
+};
 
 const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
-  
+
   useEffect(() => {
-    debugger
-    console.log(areasData)
-  }, [areasData])
-  
-  
+    console.log(areasData);
+  }, [areasData]);
+
   const handleSwipeMenuToggle = () => {
     setSwipeMenuOpen(!swipeMenuOpen);
-  }
+  };
 
   const bottomButtons = [
     {
@@ -108,15 +105,21 @@ const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <GeoJSON data={areasData} style={{ color: "blue" }} />
-        <PolygonManager geojsonData={areasData} swipeOpen={swipeMenuOpen}/>
+        <PolygonManager geojsonData={areasData} swipeOpen={swipeMenuOpen} />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>
-      <div id="map-overlay" className="absolute top-0 left-0 w-full h-full pointer-events-none">
+      <div
+        id="map-overlay"
+        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+      >
         <div className="relative w-full h-full pointer-events-auto">
-          <ViewInfoBar viewInfo={viewInfo}/>
+          <ViewInfoBar viewInfo={viewInfo} />
           <ButtonGroup buttonsInfo={bottomButtons} />
-          <SwipeMenu isMenuOpen={swipeMenuOpen} onMenuToggle={handleSwipeMenuToggle}/>
+          <SwipeMenu
+            isMenuOpen={swipeMenuOpen}
+            onMenuToggle={handleSwipeMenuToggle}
+          />
         </div>
       </div>
     </div>
@@ -124,4 +127,3 @@ const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
 };
 
 export default BaseMap;
-

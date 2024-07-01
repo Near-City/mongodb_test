@@ -8,6 +8,7 @@ import Test from "./views/Test";
 
 import { ConfigProvider } from "./contexts/configContext";
 import { CurrentIndicatorProvider } from "./contexts/indicatorContext";
+import { CurrentInfoProvider } from "./contexts/currentInfoContext";
 
 const router = createBrowserRouter([
   {
@@ -23,9 +24,11 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ConfigProvider>
-      <CurrentIndicatorProvider>
-        <RouterProvider router={router} />
-      </CurrentIndicatorProvider>
+      <CurrentInfoProvider>
+        <CurrentIndicatorProvider>
+          <RouterProvider router={router} />
+        </CurrentIndicatorProvider>
+      </CurrentInfoProvider>
     </ConfigProvider>
   </React.StrictMode>
 );

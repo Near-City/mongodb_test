@@ -8,10 +8,16 @@ import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
 import { getConfig, get_polygons, get_points } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext";
+import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import { inRange } from "../mixins/utils.js";
+import { area } from "d3";
+
+
 
 function Test() {
   const config = useContext(ConfigContext);
+  const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
+
   const [activePanel, setActivePanel] = useState("home");
   const [barrios, setBarrios] = useState(null);
   const [distritos, setDistritos] = useState(null);
@@ -25,6 +31,12 @@ function Test() {
   const [polygons, setPolygons] = useState(null);
 
   const [openDrawer, setOpenDrawer] = useState(true);
+
+  // useEffect(() => {
+  //   getCsrfToken().then((token) => {
+  //     console.log("CSRF Token: ", token);
+  //   });
+  // }, []);
 
   useEffect(() => {
     preloadPolygons(config.polygons).then((data) => {
@@ -40,6 +52,7 @@ function Test() {
   useEffect(() => {
     if (!currentPolygonsType) return;
     refreshPolygons(currentPolygonsType);
+    setCurrentInfo({ ...currentInfo, area: currentPolygonsType});
     console.log("Current polygons type: ", currentPolygonsType);
     
   }, [currentPolygonsType]);
@@ -55,7 +68,7 @@ function Test() {
       const polygon = config.polygons[key];
       console.log("Polygon: ", polygon.zoomRange);
       if (inRange(zoom, polygon.zoomRange)) {
-        if (currentPolygonsType === key && !polygon.lazyLoading) return; // No need to refresh
+        if (currentPolygonsType === key && !polygon.lazyLoading) return; // No need to refresh, already loaded
         refreshPolygons(key, bounds).then(() => {
           setCurrentPolygonsType(key);
           console.log("Current polygons type: ", key);
@@ -76,6 +89,7 @@ function Test() {
         return resolve();
       } else if (bounds) {
         console.log("Loading polygons: ", type);
+        setCurrentInfo({ ...currentInfo, areaLoading: true});
         get_polygons(type, bounds)
           .then((data) => {
             const polygonsData = data;
@@ -83,6 +97,7 @@ function Test() {
             // setLoadedPolygons((prev) => ({ ...prev, [type]: polygonsData }));
             
             setPolygons(polygonsData);
+            setCurrentInfo({ ...currentInfo, areaLoading: false});
             console.log("Polygons loaded: ", type);
             resolve();
           })

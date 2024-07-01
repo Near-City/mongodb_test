@@ -27,8 +27,6 @@ DEBUG = True
 
 
 
-CORS_ALLOW_ALL_ORIGINS = True # todo: limitar a dominios permitidos
-
 
 # Application definition
 
@@ -72,6 +70,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'proyecto_accesibilidad.wsgi.application'
+CORS_ALLOW_ALL_ORIGINS = True # todo: limitar a dominios permitidos
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
 
 
 # Database

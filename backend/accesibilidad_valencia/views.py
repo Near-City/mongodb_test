@@ -59,31 +59,42 @@ class PointsView(View):
             return JsonResponse({"error": "Invalid point type"}, status=400)
 
 class IndicatorsView(View):
-    def get(self, request):
-        # Sacar los parámetros de la URL
-        area = request.GET.get('area')
-        resource = request.GET.get('resource')
-        extra = request.GET.get('extra')
-        time = request.GET.get('time')
-        user = request.GET.get('user')
+    def post(self, request):
+        try:
+            # Parsear el cuerpo JSON de la solicitud
+            body = json.loads(request.body)
+            area = body.get('area')
+            area_ids = body.get('area_ids')  # Obtener lista de 'area_ids' del cuerpo de la solicitud
+            resource = body.get('resource')
+            extra = body.get('extra')
+            time = body.get('time')
+            user = body.get('user')
 
-         # Convertir "null" a None
-        if area == "null":
-            area = None
-        if resource == "null":
-            resource = None
-        if extra == "null":
-            extra = None
-        if time == "null":
-            time = None
-        if user == "null":
-            user = None
-        # FALTA COMPROBAR USER
-        # Verificar que todos los parámetros están presentes
-        if not area or not resource or not extra or not time:
-            return HttpResponseBadRequest("Todos los parámetros (area, resource, extra, time, user) son obligatorios.")
+            # Convertir "null" a None
+            if area == "null":
+                area = None
+            if resource == "null":
+                resource = None
+            if extra == "null":
+                extra = None
+            if time == "null":
+                time = None
+            if user == "null":
+                user = None
 
-        # Obtener los indicadores de accesibilidad
-        indicators = get_indicadores_accesibilidad(area, resource, extra, time, user)
+            # Verificar que todos los parámetros necesarios están presentes
+            if not area or not area_ids or not resource or not extra or not time:
+                return HttpResponseBadRequest("Todos los parámetros (area, area_ids, resource, extra, time, user) son obligatorios.")
+
+            # Obtener la colección adecuada según el área
+            area_collection = (config['polygons'].get(area) or config['defaults']['polygon'])['collection']
+
+            # Obtener los indicadores de accesibilidad
+            indicators = get_indicadores_accesibilidad(area_collection, area_ids, resource, extra, time, user)
+
+            return JsonResponse(indicators, safe=False)
         
-        return JsonResponse(indicators, safe=False)
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")
+
+

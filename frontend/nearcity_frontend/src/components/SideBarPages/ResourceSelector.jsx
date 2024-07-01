@@ -4,6 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import ExecuteBtn from "@components/Buttons/ExecuteBtn";
 import ConfigContext from "@contexts/configContext";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
+import CurrentInfoContext from "@contexts/currentInfoContext";
 import { getValueLabelFromSeparatedObjects, getValueLabelFromListAndObject } from "@mixins/utils";
 
 import { get_indicators } from "@api/geo";
@@ -11,6 +12,7 @@ import { get_indicators } from "@api/geo";
 const ResourceSelector = ({}) => {
     const config = useContext(ConfigContext);
     const {currentIndicator, setCurrentIndicator} = useContext(CurrentIndicatorContext);
+    const {currentInfo, setCurrentInfo} = useContext(CurrentInfoContext);
 
     const [selectedResource, setSelectedResource] = useState(null);
     const [selectedExtra, setSelectedExtra] = useState(null);
@@ -31,19 +33,32 @@ const ResourceSelector = ({}) => {
         setTimeOptions(time_options);
         setExtraOptions(extra_options);
         setUserOptions(user_options);
-
+        setCurrentInfo({ ...currentInfo, resource: value });
+        
+        if (extra_options.length > 0 && !extraOptions) setSelectedExtra(extra_options[0].value);
+        if (time_options.length > 0 && !timeOptions) setSelectedTime(time_options[0].value);
+        if (user_options.length > 0 && !userOptions) setSelectedUser(user_options[0].value);
           
     }
 
     const handleExtraChange = (value) => {
         console.log("Extra changed: ", value);
         setSelectedExtra(value);
+        setCurrentInfo({ ...currentInfo, extra: value });
     }
 
     const handleTimeChange = (value) => {
         console.log("Time changed: ", value);
         setSelectedTime(value);
+        setCurrentInfo({ ...currentInfo, time: value });
     }
+
+    useEffect(() => {
+        if (!currentInfo) return;
+        if (currentInfo.resource) setSelectedResource(currentInfo.resource);
+        if (currentInfo.extra) setSelectedExtra(currentInfo.extra);
+        if (currentInfo.time) setSelectedTime(currentInfo.time);
+    }, [])
 
     useEffect(() => {
         console.log("Config changed: ", config);
@@ -51,8 +66,16 @@ const ResourceSelector = ({}) => {
         const resources_data = getValueLabelFromSeparatedObjects(config.schema.options, config.schema.labels.locs);
         console.log("Resources: ", resources_data);
         setResources(resources_data);
+        handleResourceChange(resources_data[0].value);
 
     }, [config])
+
+    useEffect(() => {
+        if (!currentInfo || !currentInfo.area || !currentIndicator) return;
+        console.log("Re-Querying Indicator with Area: ", currentInfo);
+        executeQuery();
+        
+    }, [currentInfo.area])
 
     const executeQuery = () => {
         console.log("Executing query");
@@ -60,7 +83,9 @@ const ResourceSelector = ({}) => {
         console.log("Extra: ", selectedExtra);
         console.log("Time: ", selectedTime);
         console.log("User: ", selectedUser);
-        get_indicators("distritos", selectedResource, selectedExtra, selectedTime, selectedUser).then((data) => {
+        const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
+        console.log("Area: ", area);
+        get_indicators(area, selectedResource, selectedExtra, selectedTime, selectedUser).then((data) => {
             console.log("NUEVO INDICADOR: ", data);
             console.log("Current indicator: ", currentIndicator);
             setCurrentIndicator(data);

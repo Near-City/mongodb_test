@@ -32,19 +32,23 @@ def get_geospatial_data(collection_name, bounds = None):
     }, {'_id': 0}))
     return data
 
-def get_indicadores_accesibilidad(area = None, resource = None, extra = None, time = None, user = None):
+def get_indicadores_accesibilidad(area=None, area_ids=None, resource=None, extra=None, time=None, user=None):
     global db
     collection_name = "indicadores_accesibilidad"
     collection = db[collection_name]
     query = {}
+    
     if area is not None:
         query['area'] = area
+    if area_ids:
+        query['area_id'] = {'$in': area_ids}  # Usar operador '$in' para filtrar por lista de 'area_id'
     if resource is not None:
         query['resource'] = resource
     if extra is not None:
         query['extra'] = extra
     if time is not None:
         query['time'] = int(time)
+    
     result = collection.find(query)
     
     return {r['area_id']: r['value'] for r in result}

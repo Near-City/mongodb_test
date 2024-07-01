@@ -1,7 +1,8 @@
 from django.urls import path
 # from . import views
 from .views import ConfigView, PolygonsView, PointsView, IndicatorsView
-
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.generic import TemplateView
 
 app_name = 'accesibilidad_valencia'
 
@@ -17,5 +18,6 @@ urlpatterns = [
     path('api/config/', ConfigView.as_view(), name='config'),
     path('api/polygons/<str:type_code>/', PolygonsView.as_view(), name='polygons'),
     path('api/points/<str:type_code>/', PointsView.as_view(), name='points'),
-    path('api/indicators/', IndicatorsView.as_view(), name='indicators')
+    path('api/indicators/', IndicatorsView.as_view(), name='indicators'),
+    path('api/csrf/', ensure_csrf_cookie(TemplateView.as_view(template_name='blank.html')))
 ]

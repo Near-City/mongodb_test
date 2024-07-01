@@ -1,5 +1,5 @@
 import api from "./api";
-
+import { getCsrfToken } from "./auth";
 const API_URL = 'http://localhost:8000/api/'
 
 export const getConfig = () => {
@@ -57,9 +57,32 @@ export const get_points = (type_code) => {
   });
 }
 
-export const get_indicators = (area, resource, extra, time, user) => {
-  const query = `?area=${area}&resource=${resource}&extra=${extra}&time=${time}&user=${user}`;
-  return api.get(`${API_URL}indicators/?area=${area}&resource=${resource}&time=${time}&extra=${extra}`).then((response) => {
-    return response.data;
-  });
-}
+export const get_indicators = async (area, resource, extra, time, user, area_ids = []) => {
+  // const csrfToken = await getCsrfToken();
+  const payload = {
+    area: area,
+    resource: resource,
+    extra: extra,
+    time: time,
+    user: user,
+  };
+
+  // Añadir area_ids al payload si no está vacío
+  if (area_ids.length > 0) {
+    payload.area_ids = area_ids;
+  }
+
+  return api.post(`${API_URL}indicators/`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  
+  })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Error fetching indicators:", error);
+      throw error;
+    });
+};
