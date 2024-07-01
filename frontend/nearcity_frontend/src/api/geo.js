@@ -1,27 +1,44 @@
 import api from "./api";
-import { getCsrfToken } from "./auth";
+
 const API_URL = 'http://localhost:8000/api/'
 
 export const getConfig = () => {
-  return api.get(`${API_URL}config/`).then((response) => {
+  return api.get(`config/`).then((response) => {
     return response.data;
   });
 }
 
+// Función para obtener el token CSRF
+export const getCsrfToken = async () => {
+  let csrfToken = null;
+  if (!csrfToken) {
+      try {
+          const response = await api.get('csrf/');
+          csrfToken = response.data.csrfToken;
+          console.log("CSRF Token obtained:", csrfToken);
+      } catch (error) {
+          console.error('Error fetching CSRF token:', error);
+          throw error;
+      }
+  }
+  return csrfToken;
+};
+
+
 export const getBarrios = () => {
-  return api.get(`${API_URL}barrios/`).then((response) => {
+  return api.get(`barrios/`).then((response) => {
     return response.data;
   });
 };
 
 export const getDistritos = () => {
-  return api.get(`${API_URL}distritos/`).then((response) => {
+  return api.get(`distritos/`).then((response) => {
     return response.data;
   });
 };
 
 export const getSecciones = () => {
-  return api.get(`${API_URL}secciones/`).then((response) => {
+  return api.get(`secciones/`).then((response) => {
     return response.data;
   });
 }
@@ -31,7 +48,7 @@ export const getParcelas = async (bounds) => { // las bounds son las coordenadas
   
   
   try {
-    const response = await api.get(`${API_URL}parcelas/?north=${north}&south=${south}&east=${east}&west=${west}`);
+    const response = await api.get(`parcelas/?north=${north}&south=${south}&east=${east}&west=${west}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching parcelas:", error);
@@ -45,14 +62,14 @@ export const get_polygons = (type_code, bounds = null) => {
     const { north, south, east, west} = bounds;
     boundsQuery = `?bounds=${north},${south},${east},${west}`;
   }
-  return api.get(`${API_URL}polygons/${type_code}/${boundsQuery}`).then((response) => {
+  return api.get(`polygons/${type_code}/${boundsQuery}`).then((response) => {
     console.log("Data: ", response);
     return response.data;
   });
 }
 
 export const get_points = (type_code) => {
-  return api.get(`${API_URL}points/${type_code}/`).then((response) => {
+  return api.get(`points/${type_code}/`).then((response) => {
     return response.data;
   });
 }

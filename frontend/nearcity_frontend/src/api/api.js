@@ -1,28 +1,25 @@
 import axios from 'axios';
+import getCSRFToken from './csrf';
 
-const API_URL = 'http://localhost:8000/api/'; // Reemplaza con tu URL de API
-
-const api = axios.create({
-    baseURL: API_URL,
-    timeout: 10000, // Opcional: establece un tiempo de espera para las peticiones
+const axiosInstance = axios.create({
+    baseURL: 'http://localhost:8000/api/', // Ajusta esta URL según tu configuración
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+    },
+    withCredentials: true, // Esto permite a Axios enviar cookies con las solicitudes
 });
 
-// Interceptor para manejar errores globalmente
-api.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response) {
-            // Errores de respuesta del servidor (código de estado fuera de 2xx)
-            console.error('Error en la respuesta del servidor:', error.response.data);
-        } else if (error.request) {
-            // Errores relacionados con la solicitud (sin respuesta recibida)
-            console.error('No se recibió respuesta del servidor:', error.request);
-        } else {
-            // Otros errores (configuración incorrecta, etc.)
-            console.error('Error en la configuración de la solicitud:', error.message);
-        }        
-        return Promise.reject(error);
+// Función para configurar el token CSRF
+const configureAxios = async () => {
+    const token = await getCSRFToken();
+    if (token) {
+        console.log("CSRF Token obtained:", token);
+        axiosInstance.defaults.headers.common['X-CSRFToken'] = token;
     }
-);
+};
 
-export default api;
+// Llama a configureAxios para asegurarte de que el token se configura antes de hacer peticiones
+configureAxios();
+
+export default axiosInstance;

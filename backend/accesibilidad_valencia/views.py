@@ -9,6 +9,8 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from .mongo import get_mongo_connection
 import json
 from django.views import View
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 # Carga del archivo de configuración
 with open('accesibilidad_valencia/data/config.json') as f:
@@ -83,8 +85,8 @@ class IndicatorsView(View):
                 user = None
 
             # Verificar que todos los parámetros necesarios están presentes
-            if not area or not area_ids or not resource or not extra or not time:
-                return HttpResponseBadRequest("Todos los parámetros (area, area_ids, resource, extra, time, user) son obligatorios.")
+            if not area or not resource or not extra or not time:
+                return HttpResponseBadRequest("Todos los parámetros (area, resource, extra, time, user) son obligatorios.")
 
             # Obtener la colección adecuada según el área
             area_collection = (config['polygons'].get(area) or config['defaults']['polygon'])['collection']
@@ -98,3 +100,7 @@ class IndicatorsView(View):
             return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFTokenView(View):
+    def get(self, request):
+        return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')})

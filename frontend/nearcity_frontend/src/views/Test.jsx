@@ -12,8 +12,8 @@ import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import { inRange } from "../mixins/utils.js";
 import { area } from "d3";
 
-
-
+import { getCsrfToken } from "../api/geo.js";
+import { getAreaIdsFromData } from "../mixins/utils.js";
 function Test() {
   const config = useContext(ConfigContext);
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
@@ -32,11 +32,11 @@ function Test() {
 
   const [openDrawer, setOpenDrawer] = useState(true);
 
-  // useEffect(() => {
-  //   getCsrfToken().then((token) => {
-  //     console.log("CSRF Token: ", token);
-  //   });
-  // }, []);
+  useEffect(() => {
+    getCsrfToken().then((token) => {
+      console.log("CSRF Token: ", token);
+    });
+  }, []);
 
   useEffect(() => {
     preloadPolygons(config.polygons).then((data) => {
@@ -89,7 +89,6 @@ function Test() {
         return resolve();
       } else if (bounds) {
         console.log("Loading polygons: ", type);
-        setCurrentInfo({ ...currentInfo, areaLoading: true});
         get_polygons(type, bounds)
           .then((data) => {
             const polygonsData = data;
@@ -97,7 +96,8 @@ function Test() {
             // setLoadedPolygons((prev) => ({ ...prev, [type]: polygonsData }));
             
             setPolygons(polygonsData);
-            setCurrentInfo({ ...currentInfo, areaLoading: false});
+            let area_ids = getAreaIdsFromData(polygonsData.features);
+            setCurrentInfo({ ...currentInfo, area_ids: area_ids });
             console.log("Polygons loaded: ", type);
             resolve();
           })

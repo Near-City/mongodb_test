@@ -1,6 +1,6 @@
 from django.urls import path
 # from . import views
-from .views import ConfigView, PolygonsView, PointsView, IndicatorsView
+from .views import ConfigView, PolygonsView, PointsView, IndicatorsView, GetCSRFTokenView
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 
@@ -19,5 +19,5 @@ urlpatterns = [
     path('api/polygons/<str:type_code>/', PolygonsView.as_view(), name='polygons'),
     path('api/points/<str:type_code>/', PointsView.as_view(), name='points'),
     path('api/indicators/', IndicatorsView.as_view(), name='indicators'),
-    path('api/csrf/', ensure_csrf_cookie(TemplateView.as_view(template_name='blank.html')))
+    path('api/csrf/', GetCSRFTokenView.as_view(), name='csrf'),
 ]

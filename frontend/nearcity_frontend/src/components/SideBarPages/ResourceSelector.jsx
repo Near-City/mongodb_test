@@ -75,7 +75,7 @@ const ResourceSelector = ({}) => {
         console.log("Re-Querying Indicator with Area: ", currentInfo);
         executeQuery();
         
-    }, [currentInfo.area])
+    }, [currentInfo.area, currentInfo.area_ids])
 
     const executeQuery = () => {
         console.log("Executing query");
@@ -84,10 +84,11 @@ const ResourceSelector = ({}) => {
         console.log("Time: ", selectedTime);
         console.log("User: ", selectedUser);
         const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
+        const area_ids = currentInfo.area_ids ? currentInfo.area_ids : [];
         console.log("Area: ", area);
-        get_indicators(area, selectedResource, selectedExtra, selectedTime, selectedUser).then((data) => {
-            console.log("NUEVO INDICADOR: ", data);
-            console.log("Current indicator: ", currentIndicator);
+        get_indicators(area, selectedResource, selectedExtra, selectedTime, selectedUser, area_ids).then((data) => {
+            console.log("NUEVO INDICADOR: ", area, selectedResource, selectedExtra, selectedTime, selectedUser, area_ids);
+            
             setCurrentIndicator(data);
         }).catch((error) => {
             console.error("Error fetching data: ", error);
