@@ -67,7 +67,7 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
   return null;
 };
 
-const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
+const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -98,14 +98,14 @@ const BaseMap = ({ areasData, viewInfo, onUserMovedMap }) => {
       <MapContainer
         center={[39.46975, -0.37739]}
         zoom={12}
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: "100%", width: "100%", position:"relative" }}
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        <GeoJSON data={areasData} style={{ color: "blue" }} />
-        <PolygonManager geojsonData={areasData} swipeOpen={swipeMenuOpen} />
+        <GeoJSON data={areasData} style={{ color: "white" }} />
+        <PolygonManager config={config} geojsonData={areasData} swipeOpen={swipeMenuOpen} />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>

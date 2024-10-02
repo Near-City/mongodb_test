@@ -13,7 +13,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
 # Carga del archivo de configuración
-with open('accesibilidad_valencia/data/config.json') as f:
+with open('accesibilidad_valencia/data/config.json', encoding='utf-8') as f:
     config = json.load(f)
 
 db = get_mongo_connection()
@@ -71,7 +71,8 @@ class IndicatorsView(View):
             extra = body.get('extra')
             time = body.get('time')
             user = body.get('user')
-
+            red = body.get('red')
+            print(area, area_ids, resource, extra, time, user, red)
             # Convertir "null" a None
             if area == "null":
                 area = None
@@ -83,16 +84,22 @@ class IndicatorsView(View):
                 time = None
             if user == "null":
                 user = None
+            if red == "null":
+                red = None
 
             # Verificar que todos los parámetros necesarios están presentes
-            if not area or not resource or not extra or not time:
-                return HttpResponseBadRequest("Todos los parámetros (area, resource, extra, time, user) son obligatorios.")
+            if not area or not resource or not extra or not time or not red:
+                return HttpResponseBadRequest("Todos los parámetros (area, resource, extra, time, user, red) son obligatorios.")
 
             # Obtener la colección adecuada según el área
+            """
+            esto es para que el usuario no tenga que elegir directamente el área, sino que se elija automáticamente
+            con el área que está seleccionada en el frontend con el nivel de zoom.
+            """
             area_collection = (config['polygons'].get(area) or config['defaults']['polygon'])['collection']
 
             # Obtener los indicadores de accesibilidad
-            indicators = get_indicadores_accesibilidad(area_collection, area_ids, resource, extra, time, user)
+            indicators = get_indicadores_accesibilidad(area_collection, area_ids, resource, extra, time, user, red)
 
             return JsonResponse(indicators, safe=False)
         

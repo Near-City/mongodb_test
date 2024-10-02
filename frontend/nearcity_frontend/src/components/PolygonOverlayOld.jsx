@@ -2,12 +2,10 @@ import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import * as d3 from 'd3';
-import ConfigContext from '@contexts/configContext';
 
 const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
   const map = useMap();
   const layerGroupRef = useRef(L.layerGroup());
-  const config = useContext(ConfigContext);
 
   useImperativeHandle(ref, () => ({
     getLayer: () => layerGroupRef.current
@@ -37,19 +35,12 @@ const PolygonOverlay = forwardRef(({ geojsonData, indicator }, ref) => {
     const path = d3.geoPath().projection(transform);
 
     const getColor = (d) => {
-      if (!config || !d.properties.area_id || !indicator || !indicator[d.properties.area_id]) return 1;
-      console.log(indicator[d.properties.area_id])
-      return "#0000ff";
+      if (!d.properties.area_id || !indicator || !indicator[d.properties.area_id]) return 1;
+      const value = indicator[d.properties.area_id] * 10;
+      console.log(indicator)
+      console.log(d.properties.area_id)
+      return colorScale(value);
     };
-
-
-    // const getColor = (d) => {
-    //   if (!d.properties.area_id || !indicator || !indicator[d.properties.area_id]) return 1;
-    //   const value = indicator[d.properties.area_id] * 10;
-    //   console.log(indicator)
-    //   console.log(d.properties.area_id)
-    //   return colorScale(value);
-    // };
 
     const feature = svg.selectAll("path")
       .data(geojsonData.features)

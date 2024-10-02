@@ -46,23 +46,12 @@
   },
   "schema": {
     "options": {
-      "loc2": {
-        "extra": ["pub", "con", "total"],
-        "time": ["5", "10", "15", "20"],
-        "user": ["normativo", "niño", "movilidad_reducida"],
-        "area": ["D", "B", "SC", "PC"]
-      },
-      "loc3": {
-        "extra": ["pub", "con", "total"],
-        "time": ["5", "10", "15", "20"],
-        "user": ["normativo", "niño", "movilidad_reducida"],
-        "area": ["D", "B", "SC", "PC"]
-      },
-      "loc4": {
-        "extra": ["pub", "con", "total"],
-        "time": ["5", "10", "15", "20"],
-        "user": ["normativo", "niño", "movilidad_reducida"],
-        "area": ["D", "B", "SC", "PC"]
+      "loc7": {
+        "extra": ["priv"],
+        "time": ["5", "10", "15", "20", "30"],
+        "user": ["normatividad", "infancia"],
+        "area": ["PC"],
+        "red": ["caminable"]
       }
     },
     "labels": {
@@ -70,11 +59,13 @@
         "loc1": "Colegios",
         "loc2": "Hospitales",
         "loc3": "Parques",
-        "loc4": "Centros de Salud"
+        "loc4": "Centros de Salud",
+        "loc7": "Hospitales"
       },
       "extra": {
         "pub": "Públicos",
         "con": "Concertados",
+        "priv": "Privados",
         "total": "Total"
       },
       "time": {
@@ -84,7 +75,8 @@
         "20": "20 min"
       },
       "user": {
-        "normativo": "Normativo",
+        "normatividad": "Normatividad",
+        "infancia": "Infancia",
         "niño": "Niño",
         "movilidad_reducida": "Movilidad reducida"
       },
@@ -93,7 +85,23 @@
         "B": "Barrio",
         "SC": "Sección",
         "PC": "Parcela"
+      },
+      "red": {
+        "caminable": "Caminable",
+        "bici": "Bici",
+        "coche": "Coche",
+        "transporte_publico": "Transporte público"
       }
     }
-  }
+  },
+  "colors": {
+      "accesibilidad": {
+        "A": "#006400",
+        "MA": "#32CD32",
+        "M": "#FFD700",
+        "MB": "#FFA500",
+        "B": "#FF4500",
+        "ERROR": "#A9A9A9"
+      }
+    }
 }

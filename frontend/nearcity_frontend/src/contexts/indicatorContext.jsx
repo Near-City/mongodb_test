@@ -7,7 +7,7 @@ export const CurrentIndicatorProvider = ({ children }) => {
     const [currentIndicator, setCurrentIndicator] = useState(null);
 
     useEffect(() => {
-        console.log("CurrentIndicatorProvider: ", currentIndicator);
+        console.log("Indicador cambiado a: ", currentIndicator);
     }, [currentIndicator]);
 
     return (

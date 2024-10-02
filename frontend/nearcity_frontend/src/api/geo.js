@@ -74,7 +74,7 @@ export const get_points = (type_code) => {
   });
 }
 
-export const get_indicators = async (area, resource, extra, time, user, area_ids = []) => {
+export const get_indicators = async (area, resource, extra, time, user, red, area_ids = []) => {
   // const csrfToken = await getCsrfToken();
   const payload = {
     area: area,
@@ -82,6 +82,7 @@ export const get_indicators = async (area, resource, extra, time, user, area_ids
     extra: extra,
     time: time,
     user: user,
+    red: red,
   };
 
   // Añadir area_ids al payload si no está vacío
