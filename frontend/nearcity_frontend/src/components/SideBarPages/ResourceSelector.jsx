@@ -115,7 +115,7 @@ const ResourceSelector = () => {
   }, [config]);
 
   useEffect(() => {
-    if (!currentInfo || !currentInfo.area ||currentInfo.area_ids) return;
+    if (!currentInfo || !currentInfo.area || (currentInfo.area_ids && !config.polygons[currentInfo.area].lazyLoading)) return;
     console.log("Re-Querying Indicator with Area: ", currentInfo);
     executeQuery();
   }, [currentInfo.area, currentInfo.area_ids]);
@@ -129,6 +129,14 @@ const ResourceSelector = () => {
       selectedRed
     )
       return true;
+
+    console.log("Missing parameters", {
+      selectedResource,
+      selectedExtra,
+      selectedTime,
+      selectedUser,
+      selectedRed,
+    });
     return false;
   };
 
@@ -143,6 +151,7 @@ const ResourceSelector = () => {
     console.log("Red: ", selectedRed);
     const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
     const area_ids = currentInfo.area_ids ? currentInfo.area_ids : [];
+    console.log("Area IDS: ", area_ids);
     console.log("Area: ", area);
     get_indicators(
       area,

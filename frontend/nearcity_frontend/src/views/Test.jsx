@@ -56,7 +56,21 @@ function Test() {
     if (!currentPolygonsType) return;
 
     refreshPolygons(currentPolygonsType); // he quitado esto, no sé si es necesario
-    setCurrentInfo({ ...currentInfo, area: currentPolygonsType, area_ids: null });
+    let currentInfoCopy = { ...currentInfo };
+    if (!config.polygons[currentPolygonsType].lazyLoading) {
+      currentInfoCopy = {
+        ...currentInfoCopy,
+        area_ids: null,
+      };
+    }
+
+    currentInfoCopy = {
+      ...currentInfoCopy,
+      area: currentPolygonsType,
+    }
+    
+    setCurrentInfo(currentInfoCopy);
+
     console.log("Current polygons type: ", currentPolygonsType);
   }, [currentPolygonsType]);
 
@@ -98,9 +112,9 @@ function Test() {
       if (polygons) {
         console.log("Polygons already loaded: ", type);
         console.log(polygons);
-        
+
         setPolygons(polygons);
-        
+
         return resolve();
       } else if (bounds) {
         console.log("Loading polygons: ", type);

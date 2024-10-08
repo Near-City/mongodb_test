@@ -13,7 +13,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen }) => {
 
   const getColor = (areaId) => {
     if (!config || !areaId || currentInfo.indicatorStatus != 'loaded' || !currentIndicator || !currentIndicator[areaId]) {
-      console.log(areaId, currentIndicator ? currentIndicator[areaId]: null);
+      // console.log(areaId, currentIndicator ? currentIndicator[areaId]: null);
       return config.colors.accesibilidad.ERROR || 'gray';
     }
     
