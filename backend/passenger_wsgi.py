@@ -1,9 +1,9 @@
 import sys, os
 
 # El nombre de la carpeta de tu proyecto Django.
-ApplicationDirectory = 'proyecto_accesibilidad'
+ApplicationDirectory = 'nearcity'
 # El nombre de la configuración de tu proyecto, usualmente el nombre de la carpeta que contiene el archivo settings.py.
-ApplicationName = 'proyecto_accesibilidad'
+ApplicationName = 'nearcity'
 # El nombre de la carpeta de tu entorno virtual, ajusta esto a la ubicación real de tu entorno virtual.
 VirtualEnvDirectory = 'env'
 VirtualEnv = os.path.join(os.getcwd(), VirtualEnvDirectory, 'bin', 'python')
@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.getcwd(), VirtualEnvDirectory, 'bin'))
 
 os.chdir(os.path.join(os.getcwd(), ApplicationDirectory))
 
-# Ajusta 'proyecto_accesibilidad.settings' con el nombre de tu archivo de configuraciones de Django.
+# Ajusta 'nearcity.settings' con el nombre de tu archivo de configuraciones de Django.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', ApplicationName + '.settings')
 
 from django.core.wsgi import get_wsgi_application
