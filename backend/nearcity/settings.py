@@ -72,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nearcity.wsgi.application'
 CORS_ALLOW_ALL_ORIGINS = True # todo: limitar a dominios permitidos
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://nearcity.cc.upv.es']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'nearcity.cc.upv.es']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
