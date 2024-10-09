@@ -1,8 +1,9 @@
 import axios from 'axios';
 import getCSRFToken from './csrf';
 
+
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8000/api/', // Ajusta esta URL según tu configuración
+    baseURL: import.meta.env.VITE_API_BASE_URL, // Ajusta esta URL según tu configuración
     headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',

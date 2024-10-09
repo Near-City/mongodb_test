@@ -72,20 +72,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'proyecto_accesibilidad.wsgi.application'
 CORS_ALLOW_ALL_ORIGINS = True # todo: limitar a dominios permitidos
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://nearcity.cc.upv.es']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    'https://nearcity.cc.upv.es'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:5173',  # Ajusta esta URL según sea necesario
+    'https://nearcity.cc.upv.es'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',  # Ajusta esta URL según sea necesario
+    'https://nearcity.cc.upv.es'
 ]
 
 
