@@ -1,5 +1,6 @@
 
 @import "styles/menus/DraggableMenu.css";
+@import "styles/menus/map/TileSelectorMenu.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

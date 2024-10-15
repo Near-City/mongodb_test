@@ -2,6 +2,7 @@ import {useState} from 'react';
 import DraggableMenu from "../uiModels/DraggableMenu";
 import { Bars2Icon } from '@heroicons/react/24/solid';
 import SelectComponent from '../Selects/SelectComponente';
+import ResourceSelector from '@components/SideBarPages/ResourceSelector';
 
 const SwipeMenu = ({ isMenuOpen, onMenuToggle }) => {
     const minutes = [
@@ -29,14 +30,10 @@ const SwipeMenu = ({ isMenuOpen, onMenuToggle }) => {
                     icon={<Bars2Icon className="h-5 w-5" />}
                     initialPosition={{ x: 200, y: 200 }}
                     onClose={onMenuToggle}
-                >
-                    <div className="flex flex-col items-center justify-center w-full h-full">
-                        <h1 className="text-2xl font-bold mb-4">Swipe</h1>
-                        <div className=' gap-5'>
-                            <SelectComponent items={minutes} onChange={(value) => setSelectedMinute(value)} selectedValue={selectedMinute} />
-                            <SelectComponent items={tipoIndicador} onChange={(value) => setSelectedTipoIndicador(value)} selectedValue={selectedTipoIndicador} />
-                        </div>
-                    </div>
+                >  <div>
+                        <h1 className='bold'>Swipe</h1>
+                    <ResourceSelector />
+                </div>
                 </DraggableMenu>
             )}
         </>

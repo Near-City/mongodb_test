@@ -11,6 +11,10 @@ export default {
         secondary: '#97B3E3',
         danger: '#e3342f',
       },
+      backgroundImage: {
+        'satellite-image': "url('/tilesBg/mapBG.png')", // Actualiza la ruta
+        'map-image': "url('/tilesBg/satelliteBG.png')", // Actualiza la ruta
+      },
     },
   },
   plugins: [],
