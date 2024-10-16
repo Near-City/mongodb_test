@@ -8,6 +8,7 @@ import Test from "./views/Test";
 
 import { ConfigProvider } from "./contexts/configContext";
 import { CurrentIndicatorProvider } from "./contexts/indicatorContext";
+import { SecondIndicatorProvider } from "./contexts/secondIndicatorContext";
 import { CurrentInfoProvider } from "./contexts/currentInfoContext";
 
 const router = createBrowserRouter([
@@ -27,7 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ConfigProvider>
       <CurrentInfoProvider>
         <CurrentIndicatorProvider>
+          <SecondIndicatorProvider>
           <RouterProvider router={router} />
+          </SecondIndicatorProvider>
         </CurrentIndicatorProvider>
       </CurrentInfoProvider>
     </ConfigProvider>

@@ -2,34 +2,36 @@ import React, { useEffect, useState, useContext } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
+import SecondIndicatorContext from "@contexts/secondIndicatorContext";
 import CurrentInfoContext from "@contexts/currentInfoContext";
 import SwipeBar from "./uiMapComponents/SwipeBar";
 
 const PolygonManager = ({ config, geojsonData, swipeOpen }) => {
   const map = useMap();
   const { currentIndicator } = useContext(CurrentIndicatorContext);
+  const { secondIndicator } = useContext(SecondIndicatorContext);
   const { currentInfo } = useContext(CurrentInfoContext);
 
   const [leftLayer, setLeftLayer] = useState(null);
   const [rightLayer, setRightLayer] = useState(null);
 
-  const getColor = (areaId) => {
-    if (!config || !areaId || currentInfo.indicatorStatus !== 'loaded' || !currentIndicator || !currentIndicator[areaId]) {
+  const getColor = (areaId, indicator) => {
+    if (!config || !areaId || currentInfo.indicatorStatus !== 'loaded' || !indicator || !indicator[areaId]) {
       return config.colors.accesibilidad.ERROR || 'gray';
     }
-    return config.colors.accesibilidad[currentIndicator[areaId]];
+    return config.colors.accesibilidad[indicator[areaId]];
   };
 
-  const styleFeature = (feature) => ({
-    fillColor: getColor(feature.properties.area_id),
+  const styleFeatureMainIndicator = (feature) => ({
+    fillColor: getColor(feature.properties.area_id, currentIndicator),
     weight: 1,
     opacity: 1,
     color: 'white',
     fillOpacity: 0.8,
   });
 
-  const styleFeatureRightLayer = (feature) => ({
-    fillColor: 'red',
+  const styleFeatureSecondIndicator = (feature) => ({
+    fillColor: getColor(feature.properties.area_id, secondIndicator),
     weight: 1,
     opacity: 1,
     color: 'white',
@@ -66,10 +68,10 @@ const PolygonManager = ({ config, geojsonData, swipeOpen }) => {
     if (swipeOpen && !map.getPane('rightPane')) {
       map.createPane('rightPane').style.zIndex = 650;
     }
-  
+    
     // Crear nuevas capas para izquierda y derecha
     const newLeftLayer = L.geoJSON(geojsonData, {
-      style: styleFeature,
+      style: styleFeatureMainIndicator,
       onEachFeature: onEachFeature,
       pane: 'leftPane',
     }).addTo(map);
@@ -78,7 +80,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen }) => {
   
     if (swipeOpen) {
       const newRightLayer = L.geoJSON(geojsonData, {
-        style: styleFeatureRightLayer,
+        style: styleFeatureSecondIndicator,
         onEachFeature: onEachFeature,
         pane: 'rightPane',
       }).addTo(map);
@@ -96,7 +98,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen }) => {
         map.removeLayer(rightLayer);
       }
     };
-  }, [geojsonData, currentIndicator, swipeOpen, map]);
+  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map]);
   
 
   return swipeOpen && leftLayer && rightLayer ? (

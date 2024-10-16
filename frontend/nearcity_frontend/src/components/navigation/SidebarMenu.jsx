@@ -1,21 +1,27 @@
 // Sidebar.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { FiInfo, FiGlobe, FiList, FiLayers, FiGrid, FiBarChart2 } from 'react-icons/fi';
 import { GrResources } from "react-icons/gr";
 import ResourceSelector from '@components/SideBarPages/ResourceSelector';
+import CurrentIndicatorContext from "@contexts/indicatorContext";
 
 const Sidebar = ({ navbarHeight = '10px' }) => {
   const [activePanel, setActivePanel] = useState(null);
+  const { currentIndicator, setCurrentIndicator } = useContext(CurrentIndicatorContext);
 
   const data = [
-    { icon: FiInfo, label: 'Tutorial'},
-    { icon: GrResources, label: 'Selección de Recurso', component: ResourceSelector },
+    { icon: FiInfo, label: 'Tutorial' },
+    { icon: GrResources, label: 'Selección de Recurso', component: ResourceSelector, props: { setIndicator: setCurrentIndicator } },
     { icon: FiList, label: 'List' },
     { icon: FiLayers, label: 'Layers' },
     { icon: FiGrid, label: 'Grid' },
     { icon: FiBarChart2, label: 'Chart' },
   ];
+  
 
+  useEffect(() => {
+    console.log(currentIndicator, setCurrentIndicator)
+  }, [currentIndicator, setCurrentIndicator])
   const togglePanel = (index) => {
     setActivePanel(activePanel === index ? null : index);
   };
@@ -39,14 +45,14 @@ const Sidebar = ({ navbarHeight = '10px' }) => {
 
       {/* Panel desplegable */}
       {activePanel !== null && (
-        <div 
+        <div
           className="w-auto min-w-64 bg-white shadow-lg fixed left-16 h-full overflow-y-auto z-[9999] transition-all duration-300 ease-in-out"
-          style={{top: navbarHeight}}
+          style={{ top: navbarHeight }}
         >
           <div className="p-4">
             <h2 className="text-xl font-bold mb-4">{data[activePanel].label}</h2>
-            {/* Corrección aquí: Asignar el componente a una variable y luego usarlo */}
-            {data[activePanel].component && React.createElement(data[activePanel].component)}
+            {/* Renderiza el componente con sus props si están definidos */}
+            {data[activePanel].component && React.createElement(data[activePanel].component, data[activePanel].props)}
           </div>
         </div>
       )}

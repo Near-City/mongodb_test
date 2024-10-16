@@ -14,6 +14,7 @@ export default {
       backgroundImage: {
         'satellite-image': "url('/tilesBg/mapBG.png')", // Actualiza la ruta
         'map-image': "url('/tilesBg/satelliteBG.png')", // Actualiza la ruta
+        'transit-image': "url('/tilesBg/transitBG.png')", // Actualiza la ruta
       },
     },
   },

@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
 import PolygonOverlay from "./PolygonOverlay";
 import valenciaBounds from "../data/geojson/valencia_boundary.json";
 import ButtonGroup from "./uiMapComponents/uiModels/ButtonGroup.jsx";
-import { Bars2Icon } from "@heroicons/react/24/solid";
+import swipeIcon from "../assets/icons/swipeIcon.png";
 
 import SwipeMenu from "./uiMapComponents/DraggableMenus/SwipeMenu.jsx";
 import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
@@ -93,11 +93,7 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
       // Añade la capa base por defecto
       baseLayer.addTo(map);
 
-      // Añade el control de capas
-      const layersControl = L.control.layers(
-        { 'Mapa Base': baseLayer, 'Satélite': satelliteLayer },
-        {}
-      ).addTo(map);
+      
     }
   }, [map]); // Este useEffect solo se ejecuta cuando mapRef.current está definido
 
@@ -132,7 +128,7 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
 
   const bottomButtons = [
     {
-      icon: "icon1",
+      icon: swipeIcon,
       onClick: () => handleSwipeMenuToggle(),
     },
     {

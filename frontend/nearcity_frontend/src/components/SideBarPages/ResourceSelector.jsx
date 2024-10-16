@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState, useContext } from "react";
 import ExecuteBtn from "@components/Buttons/ExecuteBtn";
 import ConfigContext from "@contexts/configContext";
-import CurrentIndicatorContext from "@contexts/indicatorContext";
+
 import CurrentInfoContext from "@contexts/currentInfoContext";
 import {
   getValueLabelFromSeparatedObjects,
@@ -12,11 +12,9 @@ import {
 
 import { get_indicators } from "@api/geo";
 
-const ResourceSelector = () => {
+const ResourceSelector = ({ setIndicator }) => {
   const config = useContext(ConfigContext);
-  const { currentIndicator, setCurrentIndicator } = useContext(
-    CurrentIndicatorContext
-  );
+  
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
 
   const [selectedResource, setSelectedResource] = useState(null);
@@ -142,7 +140,7 @@ const ResourceSelector = () => {
 
   const executeQuery = () => {
     if (!checkEveryParam()) return;
-    setCurrentIndicator(null);
+    setIndicator(null);
     console.log("Executing query");
     console.log("Resource: ", selectedResource);
     console.log("Extra: ", selectedExtra);
@@ -175,7 +173,7 @@ const ResourceSelector = () => {
         );
 
         setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded" });
-        setCurrentIndicator(data);
+        setIndicator(data);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);

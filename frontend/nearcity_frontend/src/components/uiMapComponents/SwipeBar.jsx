@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import "leaflet/dist/leaflet.css";
+import React, { useState, useEffect, useRef } from 'react';
+import 'leaflet/dist/leaflet.css';
+import { FaArrowsAltH } from 'react-icons/fa';
 
 let mapWasDragEnabled = false;
 let mapWasTapEnabled = false;
@@ -65,7 +66,7 @@ const SwipeBar = ({ map, leftLayer, rightLayer }) => {
   return (
     <div
       ref={swipeRef}
-      className="absolute top-0 bottom-0 w-1 bg-gray-800 opacity-70 cursor-pointer z-[1000] select-none"
+      className="absolute top-0 bottom-0 w-1 bg-gray-800 opacity-70 cursor-pointer z-[1000] select-none flex items-center justify-center"
       style={{ left: `${position}px` }}
       onMouseDown={(e) => {
         e.stopPropagation(); // Evita que el mapa se mueva mientras se arrastra la barra
@@ -85,7 +86,11 @@ const SwipeBar = ({ map, leftLayer, rightLayer }) => {
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
       }}
-    ></div>
+    >
+      <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+        <FaArrowsAltH className="text-white opacity-90 text-xl" />
+      </div>
+    </div>
   );
 };
 
@@ -100,6 +105,7 @@ export default SwipeBar;
    - Se utiliza `useRef` para obtener el tamaño del contenedor y calcular la posición correcta sin saltos bruscos.
    - `useEffect` se utiliza para actualizar el clip de las capas izquierda y derecha según la posición de la barra, asegurando que solo se muestre la parte correspondiente.
    - Se añadió un evento `move` del mapa para recalcular los recortes (`updateClip`) cada vez que se mueve el mapa, garantizando que el clip sea preciso durante cualquier interacción con el mapa.
+   - `FaArrowsAltH` es un icono que se muestra en el centro de la barra para indicar al usuario que puede arrastrarla, envuelto en un círculo para que sea más visible.
    - `e.preventDefault()` evita la selección de texto al arrastrar la barra.
    - `select-none` se añade para asegurarse de que no se seleccionen elementos de la página al mover la barra.
 2. Este componente debe ser importado y utilizado dentro del `PolygonManager` que está dentro del mapa de Leaflet.
