@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad
+from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas
 from .utils import build_geojson_from_features
 # Create your views here.
 
@@ -88,7 +88,7 @@ class IndicatorsView(View):
                 red = None
 
             # Verificar que todos los parámetros necesarios están presentes
-            if not area or not resource or not extra or not time or not red:
+            if not user or not area or not resource or not extra or not time or not red:
                 return HttpResponseBadRequest("Todos los parámetros (area, resource, extra, time, user, red) son obligatorios.")
 
             # Obtener la colección adecuada según el área
@@ -102,6 +102,39 @@ class IndicatorsView(View):
             indicators = get_indicadores_accesibilidad(area_collection, area_ids, resource, extra, time, user, red)
 
             return JsonResponse(indicators, safe=False)
+        
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")
+
+
+class IsocronasView(View):
+    def post(self, request):
+        try:
+            # Parsear el cuerpo JSON de la solicitud
+            body = json.loads(request.body)
+            
+            area_id = body.get('area_id')
+            time = body.get('time')
+            user = body.get('user')
+            red = body.get('red')
+            
+            if area_id == "null":
+                area_id = None
+            if time == "null":
+                time = None
+            if user == "null":
+                user = None
+            if red == "null":
+                red = None
+
+            # Verificar que todos los parámetros necesarios están presentes
+            if not area_id or not user or not time or not red:
+                return HttpResponseBadRequest("Todos los parámetros (area_id, time, user, red) son obligatorios.")
+
+            # Obtener las isocronas
+            isocronas = get_isocronas(area_id, time, user, red)
+
+            return JsonResponse(isocronas, safe=False)
         
         except json.JSONDecodeError:
             return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")

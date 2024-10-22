@@ -26,7 +26,8 @@
       "collection": "parcelas",
       "zoomRange": [17, 19],
       "lazyLoading": true,
-      "saveToCache": false
+      "saveToCache": false,
+      "isocronas": true
     }
   },
   "points": {
@@ -47,9 +48,9 @@
   "schema": {
     "options": {
       "loc7": {
-        "extra": ["priv"],
+        "extra": ["priv", "pub", "total"],
         "time": ["5", "10", "15", "20", "30"],
-        "user": ["normatividad", "infancia"],
+        "user": ["normatividad", "infancia", "vejez"],
         "area": ["PC"],
         "red": ["caminable"]
       }
@@ -77,8 +78,7 @@
       "user": {
         "normatividad": "Normatividad",
         "infancia": "Infancia",
-        "niño": "Niño",
-        "movilidad_reducida": "Movilidad reducida"
+        "vejez": "Vejez"
       },
       "area": {
         "D": "Distrito",

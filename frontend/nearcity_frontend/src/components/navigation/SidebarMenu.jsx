@@ -10,12 +10,12 @@ const Sidebar = ({ navbarHeight = '10px' }) => {
   const { currentIndicator, setCurrentIndicator } = useContext(CurrentIndicatorContext);
 
   const data = [
-    { icon: FiInfo, label: 'Tutorial' },
-    { icon: GrResources, label: 'Selección de Recurso', component: ResourceSelector, props: { setIndicator: setCurrentIndicator } },
-    { icon: FiList, label: 'List' },
-    { icon: FiLayers, label: 'Layers' },
-    { icon: FiGrid, label: 'Grid' },
-    { icon: FiBarChart2, label: 'Chart' },
+    { icon: FiInfo, label: 'Tutorial', id: 'tutorial' },
+    { icon: GrResources, label: 'Selección de Recurso', component: ResourceSelector, props: { setIndicator: setCurrentIndicator }, id: 'resourceSelector' },
+    { icon: FiList, label: 'List', id: 'list' },
+    { icon: FiLayers, label: 'Layers', id: 'layers' },
+    { icon: FiGrid, label: 'Grid', id: 'grid' },
+    { icon: FiBarChart2, label: 'Chart', id: 'chart' },
   ];
   
 
@@ -29,10 +29,11 @@ const Sidebar = ({ navbarHeight = '10px' }) => {
   return (
     <>
       {/* Barra de iconos */}
-      <div className="w-16 bg-gray-800 h-full flex flex-col items-center py-4 z-10">
+      <div className="w-16 bg-gray-800 h-full flex flex-col items-center py-4 z-10 sideBar">
         {data.map((item, index) => (
           <button
             key={index}
+            id={item.id}
             className={`p-3 mb-4 rounded-full hover:bg-gray-700 transition-colors ${
               activePanel === index ? 'bg-blue-500' : ''
             }`}

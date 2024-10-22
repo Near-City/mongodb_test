@@ -65,3 +65,21 @@ def get_indicadores_accesibilidad(area=None, area_ids=None, resource=None, extra
     result = collection.find(query)
     
     return {str(r['area_id']): r['value'] for r in result}
+
+
+def get_isocronas(area_id, time, user, red):
+    global db
+    collection_name = "test"
+    collection = db[collection_name]
+    
+    # Ajustar el query para buscar dentro de "properties"
+    query = {
+        'properties.area_id': area_id,
+        'properties.time': time,
+        'properties.user': user,
+        'properties.red': red
+    }
+    
+    result = collection.find_one(query)
+    
+    return result['geometry']

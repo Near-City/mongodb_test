@@ -57,13 +57,13 @@ const ResourceSelector = ({ setIndicator }) => {
 
 
     if (extra_options.length > 0 && !selectedExtra)
-      setSelectedExtra(extra_options[0].value);
+      handleExtraChange(extra_options[0].value);
     if (time_options.length > 0 && !selectedTime)
-      setSelectedTime(time_options[0].value);
+      handleTimeChange(time_options[0].value);
     if (user_options.length > 0 && !selectedUser)
-      setSelectedUser(user_options[0].value);
+      handleUserChange(user_options[0].value);
     if (red_options.length > 0 && !selectedRed)
-      setSelectedRed(red_options[0].value);
+      handleRedChange(red_options[0].value);
   };
 
   const handleExtraChange = (value) => {
@@ -172,7 +172,7 @@ const ResourceSelector = ({ setIndicator }) => {
           area_ids
         );
 
-        setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded" });
+        setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded", area: area, resource: selectedResource, extra: selectedExtra, time: selectedTime, user: selectedUser, red: selectedRed });
         setIndicator(data);
       })
       .catch((error) => {

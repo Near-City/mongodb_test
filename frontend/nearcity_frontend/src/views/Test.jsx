@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
 import LeafletMapWithD3Overlay from "../components/LeafletMapWithD3Overlay.jsx";
 import BaseMap from "../components/BaseMap.jsx";
 import SidePanel from "../components/SidePanel.jsx";
@@ -6,7 +7,12 @@ import MapToolbar from "../components/MapToolBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
-import { getConfig, get_polygons, get_points } from "../api/geo.js";
+import {
+  getConfig,
+  get_polygons,
+  get_points,
+  get_isocronas,
+} from "../api/geo.js";
 import ConfigContext from "../contexts/configContext";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
@@ -15,23 +21,17 @@ import { area } from "d3";
 
 import { getCsrfToken } from "../api/geo.js";
 import { getAreaIdsFromData } from "../mixins/utils.js";
+
 function Test() {
   const config = useContext(ConfigContext);
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
   const { currentIndicator, setCurrentIndicator } = useContext(
     CurrentIndicatorContext
   );
-  const [activePanel, setActivePanel] = useState("home");
-  const [barrios, setBarrios] = useState(null);
-  const [distritos, setDistritos] = useState(null);
-  const [secciones, setSecciones] = useState(null);
-  const [parcelas, setParcelas] = useState(null);
-
-  const [currentData, setCurrentData] = useState(null);
   const [currentPolygonsType, setCurrentPolygonsType] = useState(null);
   const [loadedPolygons, setLoadedPolygons] = useState({});
 
-  const [polygons, setPolygons] = useState(null);
+  const [geodata, setGeoData] = useState(null);
 
   const [openDrawer, setOpenDrawer] = useState(true);
 
@@ -49,13 +49,10 @@ function Test() {
     });
   }, [config.polygons]);
 
-  /*
-  Aquí hay un problema, se están renderizando los polígonos un frame después de hacer el zoom y que se renderice el mapa, lo que da un efecto de parpadeo.
-  */
   useEffect(() => {
     if (!currentPolygonsType) return;
 
-    refreshPolygons(currentPolygonsType); // he quitado esto, no sé si es necesario
+    refreshPolygons(currentPolygonsType);
     let currentInfoCopy = { ...currentInfo };
     if (!config.polygons[currentPolygonsType].lazyLoading) {
       currentInfoCopy = {
@@ -67,39 +64,33 @@ function Test() {
     currentInfoCopy = {
       ...currentInfoCopy,
       area: currentPolygonsType,
-    }
-    
+    };
+
     setCurrentInfo(currentInfoCopy);
 
     console.log("Current polygons type: ", currentPolygonsType);
   }, [currentPolygonsType]);
 
   useEffect(() => {
-    console.log("poligonos changed:", polygons);
-  }, [polygons]);
+    console.log("poligonos changed:", geodata);
+  }, [geodata]);
 
   const handleUserMovedMap = (zoom, bounds) => {
+    if (currentInfo?.isocronas) return; // Si hay isocronas, no hacer nada
     console.log("Zoom level: ", zoom);
     console.log("Bounds: ", bounds);
     Object.keys(config.polygons).forEach((key) => {
       const polygon = config.polygons[key];
       console.log("Polygon: ", polygon.zoomRange);
       if (inRange(zoom, polygon.zoomRange)) {
-        if (currentPolygonsType === key && !polygon.lazyLoading) return; // No need to refresh, already loaded
-        /* 
-        todo: MI ESTRATEGIA AQUÍ ES COMPROBAR SI HAY UN INDICADOR ACTIVO O SI NO.
-        SI NO LO HAY, QUE SE HAGA LO DE SIEMPRE.
-        SI LO HAY, QUIERO HACER UNA PROMESA DE QUE PRIMERO SE CARGUE EL INDICADOR Y LUEGO SE CARGUEN LOS POLÍGONOS.
-        PARA ESO TENDRÍA QUE CONSEGUIR HACER QUE EL INDICADOR SE PUEDA EJECUTAR DESDE AQUÍ, NO SÉ SI ES LA MEJOR OPCIÓN.
-
-        */
+        if (currentPolygonsType === key && !polygon.lazyLoading) return;
         if (currentIndicator) {
           setCurrentInfo({ ...currentInfo, indicatorStatus: "loading" });
         }
         refreshPolygons(key, bounds).then(() => {
           setCurrentPolygonsType(key);
           console.log("Current polygons type: ", key);
-          console.log("Polygons: ", polygons);
+          console.log("Polygons: ", geodata);
         });
       }
     });
@@ -113,7 +104,7 @@ function Test() {
         console.log("Polygons already loaded: ", type);
         console.log(polygons);
 
-        setPolygons(polygons);
+        setGeoData({...geodata, polygons: polygons});
 
         return resolve();
       } else if (bounds) {
@@ -121,10 +112,7 @@ function Test() {
         get_polygons(type, bounds)
           .then((data) => {
             const polygonsData = data;
-            // NO guardamos los polígonos en el estado, solo los mostramos
-            // setLoadedPolygons((prev) => ({ ...prev, [type]: polygonsData }));
-
-            setPolygons(polygonsData);
+            setGeoData({...geodata, polygons: polygonsData});
             let area_ids = getAreaIdsFromData(polygonsData.features);
             setCurrentInfo({ ...currentInfo, area_ids: area_ids });
             console.log("Polygons loaded: ", type);
@@ -153,57 +141,48 @@ function Test() {
     return Object.assign({}, ...results);
   };
 
-  const onDataRequested = (id) => {
-    console.log("Data requested: ", id);
-
-    if (id === "distritos") {
-      if (!distritos) updateDistritos();
-      setCurrentData(distritos);
-    } else if (id === "barrios") {
-      if (!barrios) updateBarrios();
-      setCurrentData(barrios);
-    } else if (id === "secciones") {
-      if (!secciones) updateSecciones();
-      setCurrentData(secciones);
-    } else if (id === "parcelas") {
-      // setCurrentData(parcelas);
+  const handlePolygonClick = (e) => {
+    /*
+    Devuelve la instrucción que tiene que hacer el PolygonManager cuando se hace click en un polígono en función de lo que decida esta vista (el Padre)
+    Si devuelve null, el PolygonManager no hará nada
+    si devuelve "hide", el PolygonManager eliminará todos los polígonos menos el que se ha clicado
+    */
+    const areaId = e.target.feature.properties.area_id;
+    let instruction = null;
+    if (
+      currentIndicator &&
+      currentInfo.time &&
+      currentInfo.red &&
+      currentInfo.user &&
+      currentInfo.area &&
+      config?.polygons?.[currentInfo.area].isocronas
+    ) {
+      instruction = "hide";
+      get_isocronas(areaId, currentInfo.time, currentInfo.user, currentInfo.red).then((data) => {
+        console.log("Isocronas: ", data);
+        setGeoData({...geodata, isocronas: data});
+        setCurrentInfo({ ...currentInfo, isocronas: true });
+      });
     }
+
+    console.log("Area ID: ", e.target.feature.properties);
+
+    return instruction;
   };
 
-  // Sacar los datos de la API sobre las PARCELAS
-  // useEffect(() => {
-  //   getParcelas().then((data) => {
-  //     // data.title = "Parcelas";
-  //     if (data.length == 0) return;
-  //     data = data[0];
-  //     console.log(data);
-
-  //   });
-  // }, []);
-
-  function filterByName(data, name) {
-    return data.filter((item) => {
-      if (item.cod.hasOwnProperty("N_DIST")) {
-        return item.cod.N_DIST === name;
-      } else if (item.cod.hasOwnProperty("N_BAR")) {
-        return item.cod.N_BAR === name;
-      } else {
-        return false;
-      }
-    });
-  }
-
-  function filter(name) {
-    console.log(name);
-    console.log(barrios);
-    // setDinamicBarrios(filterByName(barrios, name));
-    // setDinamicDistritos(filterByName(distritos, name));
-    // setDinamicSecciones(filterByName(secciones, name));
-  }
+  const handleIsocronaClick = (e) => {
+    console.log("Isocrona clicked: ", e);
+    setCurrentInfo({ ...currentInfo, isocronas: false });
+    setGeoData({...geodata, isocronas: null});
+  };
 
   if (!config) return <div>Loading...</div>;
+
   return (
-    <div className="flex flex-col h-screen ">
+    <div className="flex flex-col h-screen">
+      {/* Renderizar el tutorial de Joyride */}
+      <TutorialExample />
+
       <TopBar
         onMenuClick={() => {
           setOpenDrawer(!openDrawer);
@@ -211,13 +190,14 @@ function Test() {
         }}
       />
       <div className="flex flex-1 relative">
-        <SidebarMenu navbarHeight="64px" />
-        <div className="flex-1 overflow-hidden">
-          {polygons && currentPolygonsType && (
+        <SidebarMenu navbarHeight="64px" className="sidebar-menu" />
+        <div className="flex-1 overflow-hidden map-container">
+          {geodata && currentPolygonsType && (
             <BaseMap
               config={config}
-              areasData={polygons}
-              requestData={onDataRequested}
+              areasData={geodata}
+              onPolygonClick={handlePolygonClick}
+              onIsocronaClick={handleIsocronaClick}
               onUserMovedMap={handleUserMovedMap}
               viewInfo={config.polygons[currentPolygonsType]?.name}
             />

@@ -1,4 +1,4 @@
-const MapFloatingButton = ({ onClick, icon }) => {
+const MapFloatingButton = ({ onClick, icon, id }) => {
     return (
       <button
         onClick={(e) => {
@@ -6,6 +6,7 @@ const MapFloatingButton = ({ onClick, icon }) => {
           onClick();
         }}
         className="h-14 w-auto p-2 bg-secondary rounded-full shadow-md hover:bg-primary hover:text-white cursor-pointer hover:shadow-lg transition duration-300 ease-in-out"
+        id={id}
       >
         {typeof icon === 'string' ? (
           // Si 'icon' es una cadena, la tratamos como una ruta de imagen (PNG, JPG, etc.)

@@ -104,3 +104,25 @@ export const get_indicators = async (area, resource, extra, time, user, red, are
       throw error;
     });
 };
+
+export const get_isocronas = async (area_id, time, user, red) => {
+  const payload = {
+    area_id: area_id,
+    time: time,
+    user: user,
+    red: red,
+  };
+
+  return api.post(`${API_URL}isocronas/`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Error fetching isocronas:", error);
+      throw error;
+    });
+};

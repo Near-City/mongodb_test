@@ -9,6 +9,7 @@ import SwipeMenu from "./uiMapComponents/DraggableMenus/SwipeMenu.jsx";
 import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
 import PolygonManager from "./PolygonManager";
 import TileSelector from "./uiMapComponents/Buttons/TileSelector";
+import IsocronasManager from "./IsocronasManager";
 
 import { getParcelas } from "../api/geo";
 
@@ -68,32 +69,43 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
   return null;
 };
 
-const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
+const BaseMap = ({
+  config,
+  areasData,
+  onPolygonClick,
+  onIsocronaClick,
+  viewInfo,
+  onUserMovedMap,
+}) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [map, setMap] = useState(null);
-  const [isSatellite, setIsSatellite] = useState(false); 
-  
+  const [isSatellite, setIsSatellite] = useState(false);
+
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
-    
     if (map) {
       console.log("Hay mapa");
       // Define las capas de mapa base y satélite
-      const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data &copy; OpenStreetMap contributors',
-      });
+      const baseLayer = L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution: "Map data &copy; OpenStreetMap contributors",
+        }
+      );
 
-      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-      });
+      const satelliteLayer = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          attribution:
+            "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+        }
+      );
 
       // Guarda las capas en el objeto de mapa para poder acceder a ellas más tarde
       map.baseLayer = baseLayer;
       map.satelliteLayer = satelliteLayer;
       // Añade la capa base por defecto
       baseLayer.addTo(map);
-
-      
     }
   }, [map]); // Este useEffect solo se ejecuta cuando mapRef.current está definido
 
@@ -123,13 +135,12 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
       setIsSatellite(!isSatellite); // Cambia el estado de la capa
     }
   };
-  
-
 
   const bottomButtons = [
     {
       icon: swipeIcon,
       onClick: () => handleSwipeMenuToggle(),
+      id: "swipe",
     },
     {
       icon: "icon2",
@@ -153,8 +164,18 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         /> */}
-        <GeoJSON data={areasData} style={{ color: "white" }} />
-        <PolygonManager config={config} geojsonData={areasData} swipeOpen={swipeMenuOpen} />
+        <GeoJSON data={areasData?.polygons} style={{ color: "white" }} />
+        <PolygonManager
+          config={config}
+          geojsonData={areasData?.polygons}
+          swipeOpen={swipeMenuOpen}
+          onPolygonClick={onPolygonClick}
+        />
+        <IsocronasManager
+          config={config}
+          geojsonData={areasData?.isocronas}
+          onPolygonClick={onIsocronaClick}
+          />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>
@@ -169,10 +190,7 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
             isMenuOpen={swipeMenuOpen}
             onMenuToggle={handleSwipeMenuToggle}
           />
-          <TileSelector 
-          isSatellite={isSatellite}
-          onClick={toggleLayer}
-          />
+          <TileSelector isSatellite={isSatellite} onClick={toggleLayer} />
         </div>
       </div>
     </div>
@@ -180,5 +198,3 @@ const BaseMap = ({ config, areasData, viewInfo, onUserMovedMap }) => {
 };
 
 export default BaseMap;
-
-

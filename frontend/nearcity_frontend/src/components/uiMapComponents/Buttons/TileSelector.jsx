@@ -26,6 +26,7 @@ const TileSelector = ({ onClick, isSatellite }) => {
       >
         {/* Botón principal */}
         <button
+          id='tile-selector'
           className={`w-24 h-24 rounded-md shadow-lg bg-cover bg-center transition duration-300 hover:scale-105 hover:border-2 hover:border-black flex flex-col justify-end items-center ${
             isSatellite ? 'bg-satellite-image' : 'bg-map-image'
           }`}
