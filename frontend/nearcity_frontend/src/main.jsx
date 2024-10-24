@@ -3,8 +3,7 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
-import Dashboard from "./views/Dashboard";
-import Test from "./views/Test";
+import Test from "./views/Dashboard";
 
 import { ConfigProvider } from "./contexts/configContext";
 import { CurrentIndicatorProvider } from "./contexts/indicatorContext";
@@ -14,10 +13,6 @@ import { CurrentInfoProvider } from "./contexts/currentInfoContext";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
-  },
-  {
-    path: "/test",
     element: <Test />,
   },
 ]);

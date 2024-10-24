@@ -12,8 +12,6 @@ import TileSelector from "./uiMapComponents/Buttons/TileSelector";
 import IsocronasManager from "./IsocronasManager";
 import LocsManager from "./LocsManager";
 
-import { getParcelas } from "../api/geo";
-
 import ConfigContext from "../contexts/configContext";
 
 const MapBounds = () => {

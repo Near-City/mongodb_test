@@ -1,109 +1,207 @@
-import { useEffect, useState } from "react";
-import MapComponent from "../components/MapComponent";
+import { useEffect, useState, useContext } from "react";
+import LeafletMapWithD3Overlay from "../components/LeafletMapWithD3Overlay.jsx";
+import BaseMap from "../components/BaseMap.jsx";
 import SidePanel from "../components/SidePanel.jsx";
 import MapToolbar from "../components/MapToolBar.jsx";
 import TopBar from "../components/TopBar.jsx";
-import { MapContainer, TileLayer } from 'react-leaflet';
-import L from 'leaflet';
+import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
-import { getBarrios, getDistritos, getSecciones } from "../api/geo.js";
+import {
+  getConfig,
+  get_polygons,
+  get_points,
+  get_isocronas,
+} from "../api/geo.js";
+import ConfigContext from "../contexts/configContext.jsx";
+import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
+import CurrentIndicatorContext from "@contexts/indicatorContext";
+import { inRange } from "../mixins/utils.js";
+import { area } from "d3";
+
+import { getCsrfToken } from "../api/geo.js";
+import { getAreaIdsFromData } from "../mixins/utils.js";
 
 function Dashboard() {
-  const [barrios, setBarrios] = useState(null);
-  const [distritos, setDistritos] = useState(null);
-  const [secciones, setSecciones] = useState(null);
+  const config = useContext(ConfigContext);
+  const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
+  const { currentIndicator, setCurrentIndicator } = useContext(
+    CurrentIndicatorContext
+  );
+  const [currentPolygonsType, setCurrentPolygonsType] = useState(null);
+  const [loadedPolygons, setLoadedPolygons] = useState({});
 
-  // Los datos dinámicos, es decir, los que pueden ser filtrados y modificados para mostrarlos en el mapa
-  const [dinamicBarrios, setDinamicBarrios] = useState(null);
-  const [dinamicDistritos, setDinamicDistritos] = useState(null);
-  const [dinamicSecciones, setDinamicSecciones] = useState(null);
-
-  const [currentTitle, setCurrentTitle] = useState(null);
+  const [geodata, setGeoData] = useState(null);
 
   const [openDrawer, setOpenDrawer] = useState(true);
 
-  
-  // Sacar los datos de la API sobre los BARRIOS
   useEffect(() => {
-    getBarrios().then((data) => {
-      // data.title = "Barrios";
-      if (data.length == 0) return;
-
-      console.log(data[0]);
-      setBarrios(data[0]);
-      setDinamicBarrios(data[0]);
+    getCsrfToken().then((token) => {
+      console.log("CSRF Token: ", token);
     });
   }, []);
 
-  // Sacar los datos de la API sobre los DISTRITOS
   useEffect(() => {
-    getDistritos().then((data) => {
-      // data.title = "Distritos";
-      if (data.length == 0) return;
-      data = data[0];
-      console.log(data);
-      setDistritos(data);
-      setDinamicDistritos(data);
+    preloadPolygons(config.polygons).then((data) => {
+      setLoadedPolygons(data);
+      setCurrentPolygonsType(config.defaults.polygon);
+      console.log("Polygons preloaded: ", data);
     });
-  }, []);
+  }, [config.polygons]);
 
-  // Sacar los datos de la API sobre las SECCIONES
   useEffect(() => {
-    getSecciones().then((data) => {
-      // data.title = "Secciones";
-      if (data.length == 0) return;
-      data = data[0];
-      console.log(data);
-      setSecciones(data);
-      setDinamicSecciones(data);
-    });
-  }, []);
+    if (!currentPolygonsType) return;
 
-  function handleDataChange(data) {
-    console.log(data);
-    setCurrentTitle(data);
-  }
+    refreshPolygons(currentPolygonsType);
+    let currentInfoCopy = { ...currentInfo };
+    if (!config.polygons[currentPolygonsType].lazyLoading) {
+      currentInfoCopy = {
+        ...currentInfoCopy,
+        area_ids: null,
+      };
+    }
 
-  function filterByName(data, name) {
-    return data.filter((item) => {
-      if (item.cod.hasOwnProperty("N_DIST")) {
-        return item.cod.N_DIST === name;
-      } else if (item.cod.hasOwnProperty("N_BAR")) {
-        return item.cod.N_BAR === name;
-      } else {
-        return false;
+    currentInfoCopy = {
+      ...currentInfoCopy,
+      area: currentPolygonsType,
+    };
+
+    setCurrentInfo(currentInfoCopy);
+
+    console.log("Current polygons type: ", currentPolygonsType);
+  }, [currentPolygonsType]);
+
+  useEffect(() => {
+    console.log("poligonos changed:", geodata);
+  }, [geodata]);
+
+  const handleUserMovedMap = (zoom, bounds) => {
+    if (currentInfo?.isocronas) return; // Si hay isocronas, no hacer nada
+    console.log("Zoom level: ", zoom);
+    console.log("Bounds: ", bounds);
+    Object.keys(config.polygons).forEach((key) => {
+      const polygon = config.polygons[key];
+      console.log("Polygon: ", polygon.zoomRange);
+      if (inRange(zoom, polygon.zoomRange)) {
+        if (currentPolygonsType === key && !polygon.lazyLoading) return;
+        if (currentIndicator) {
+          setCurrentInfo({ ...currentInfo, indicatorStatus: "loading" });
+        }
+        refreshPolygons(key, bounds).then(() => {
+          setCurrentPolygonsType(key);
+          console.log("Current polygons type: ", key);
+          console.log("Polygons: ", geodata);
+        });
       }
     });
-  }
+  };
 
-  function filter(name){
-    console.log(name);
-    console.log(barrios)
-    // setDinamicBarrios(filterByName(barrios, name));
-    // setDinamicDistritos(filterByName(distritos, name));
-    // setDinamicSecciones(filterByName(secciones, name));
-  }
+  const refreshPolygons = (type, bounds = null) => {
+    return new Promise((resolve, reject) => {
+      if (!type) return reject("Invalid type");
+      let polygons = loadedPolygons[type];
+      if (polygons) {
+        console.log("Polygons already loaded: ", type);
+        console.log(polygons);
+
+        setGeoData({...geodata, polygons: polygons});
+
+        return resolve();
+      } else if (bounds) {
+        console.log("Loading polygons: ", type);
+        get_polygons(type, bounds)
+          .then((data) => {
+            const polygonsData = data;
+            setGeoData({...geodata, polygons: polygonsData});
+            let area_ids = getAreaIdsFromData(polygonsData.features);
+            setCurrentInfo({ ...currentInfo, area_ids: area_ids });
+            console.log("Polygons loaded: ", type);
+            resolve();
+          })
+          .catch(reject);
+      }
+    });
+  };
+
+  const preloadPolygons = async (polygonsConfig) => {
+    const promises = [];
+    Object.keys(polygonsConfig).forEach((key) => {
+      const polygon = polygonsConfig[key];
+      if (!polygon.saveToCache) return;
+      promises.push(
+        get_polygons(key)
+          .then((data) => ({ [key]: data }))
+          .catch((error) => console.error(error))
+      );
+
+      console.log("Preloading polygons: ", key);
+    });
+    const results = await Promise.all(promises);
+
+    return Object.assign({}, ...results);
+  };
+
+  const handlePolygonClick = (e) => {
+    /*
+    Devuelve la instrucción que tiene que hacer el PolygonManager cuando se hace click en un polígono en función de lo que decida esta vista (el Padre)
+    Si devuelve null, el PolygonManager no hará nada
+    si devuelve "hide", el PolygonManager eliminará todos los polígonos menos el que se ha clicado
+    */
+    const areaId = e.target.feature.properties.area_id;
+    let instruction = null;
+    if (
+      currentIndicator &&
+      currentInfo.time &&
+      currentInfo.red &&
+      currentInfo.user &&
+      currentInfo.area &&
+      config?.polygons?.[currentInfo.area].isocronas
+    ) {
+      instruction = "hide";
+      get_isocronas(areaId, currentInfo.time, currentInfo.user, currentInfo.red).then((data) => {
+        console.log("Isocronas: ", data);
+        setGeoData({...geodata, isocronas: data.isocrona, locs: data.locs});
+        setCurrentInfo({ ...currentInfo, isocronas: true });
+      });
+    }
+
+    console.log("Area ID: ", e.target.feature.properties);
+
+    return instruction;
+  };
+
+  const handleIsocronaClick = (e) => {
+    console.log("Isocrona clicked: ", e);
+    setCurrentInfo({ ...currentInfo, isocronas: false });
+    setGeoData({...geodata, isocronas: null, locs: null});
+  };
+
+  if (!config) return <div>Loading...</div>;
 
   return (
-    <>
-      <TopBar
+    <div className="flex flex-col h-screen">
+
+      {/* <TopBar
         onMenuClick={() => {
           setOpenDrawer(!openDrawer);
           console.log(openDrawer);
         }}
-      />
-      <section className="flex justify-center items-center">
-        {(secciones || barrios || distritos) && (
-          <MapComponent
-            onDataChanged={handleDataChange}
-            dataDistritos={dinamicDistritos}
-            dataBarrios={dinamicBarrios}
-            dataSecciones={dinamicSecciones}
-          />
-        )}
-        <SidePanel open={openDrawer}  onFilterByName={(name) => {console.log(distritos); filter(name)}} />
-      </section>
-    </>
+      /> */}
+      <div className="flex flex-1 relative">
+        <SidebarMenu navbarHeight="0px" className="sidebar-menu" />
+        <div className="flex-1 overflow-hidden map-container">
+          {geodata && currentPolygonsType && (
+            <BaseMap
+              config={config}
+              areasData={geodata}
+              onPolygonClick={handlePolygonClick}
+              onIsocronaClick={handleIsocronaClick}
+              onUserMovedMap={handleUserMovedMap}
+              viewInfo={config.polygons[currentPolygonsType]?.name}
+            />
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
