@@ -10,7 +10,6 @@ import ViewInfoBar from "./uiMapComponents/FloatingBars/ViewInfoBar.jsx";
 import PolygonManager from "./PolygonManager";
 import TileSelector from "./uiMapComponents/Buttons/TileSelector";
 import IsocronasManager from "./IsocronasManager";
-import LocsManager from "./LocsManager";
 
 import { getParcelas } from "../api/geo";
 
@@ -88,9 +87,9 @@ const BaseMap = ({
       console.log("Hay mapa");
       // Define las capas de mapa base y satélite
       const baseLayer = L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          attribution: "Map data &copy; OpenStreetMap contributors",
         }
       );
 
@@ -177,10 +176,6 @@ const BaseMap = ({
           geojsonData={areasData?.isocronas}
           onPolygonClick={onIsocronaClick}
           />
-        <LocsManager
-          config={config}
-          geojsonData={areasData?.locs}
-        />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>

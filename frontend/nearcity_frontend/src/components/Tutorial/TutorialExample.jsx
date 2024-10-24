@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Joyride from 'react-joyride';
 
-const TutorialExample = () => {
-  // Tutorial configuration
-  const [run, setRun] = useState(false); // Inicialmente el tutorial no está corriendo
-
+const TutorialExample = ({ run, setRun }) => {
   const steps = [
     {
-      target: '#tutorial', // Identifica el contenedor del mapa
+      target: '#tutorial',
       content: 'Este es el menú donde podrás volver.',
-      disableBeacon: true, // Desactiva el beacon (punto rojo)
+      disableBeacon: true,
     },
     {
       target: '#resourceSelector',
@@ -28,42 +25,29 @@ const TutorialExample = () => {
     },
   ];
 
-  const handleStartTutorial = () => {
-    setRun(true); // Ejecutar el tutorial al presionar el botón de "Iniciar Tutorial"
-  };
-
   return (
     <div>
       <Joyride
         steps={steps}
         run={run}
-        continuous={true} // Permite avanzar automáticamente de un paso a otro
-        scrollToFirstStep={true} // Hace scroll automáticamente al primer paso si no está visible
-        showProgress={true} // Muestra el progreso del tutorial
-        showSkipButton={true} // Muestra un botón para saltar el tutorial
-        disableOverlayClose={true} // Evita que el usuario cierre el tutorial haciendo clic fuera del tooltip
-        spotlightClicks={true} // Permite clics en elementos durante el tutorial
+        continuous={true}
+        scrollToFirstStep={true}
+        showProgress={true}
+        showSkipButton={true}
+        disableOverlayClose={true}
+        spotlightClicks={true}
         styles={{
           options: {
-            zIndex: 10000, // Asegúrate de que los tooltips estén encima de todo
+            zIndex: 10000,
           },
         }}
         callback={(data) => {
           const { status } = data;
           if (status === 'finished' || status === 'skipped') {
-            setRun(false); // Detiene el tutorial cuando se completa o se omite
+            setRun(false);
           }
         }}
       />
-
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded m-4"
-        onClick={handleStartTutorial}
-      >
-        Iniciar Tutorial
-      </button>
-
-      
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from "react";
-import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
 import LeafletMapWithD3Overlay from "../components/LeafletMapWithD3Overlay.jsx";
 import BaseMap from "../components/BaseMap.jsx";
 import SidePanel from "../components/SidePanel.jsx";
@@ -160,7 +159,7 @@ function Test() {
       instruction = "hide";
       get_isocronas(areaId, currentInfo.time, currentInfo.user, currentInfo.red).then((data) => {
         console.log("Isocronas: ", data);
-        setGeoData({...geodata, isocronas: data});
+        setGeoData({...geodata, isocronas: data.isocrona, locs: data.locs});
         setCurrentInfo({ ...currentInfo, isocronas: true });
       });
     }
@@ -173,24 +172,22 @@ function Test() {
   const handleIsocronaClick = (e) => {
     console.log("Isocrona clicked: ", e);
     setCurrentInfo({ ...currentInfo, isocronas: false });
-    setGeoData({...geodata, isocronas: null});
+    setGeoData({...geodata, isocronas: null, locs: null});
   };
 
   if (!config) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Renderizar el tutorial de Joyride */}
-      <TutorialExample />
 
-      <TopBar
+      {/* <TopBar
         onMenuClick={() => {
           setOpenDrawer(!openDrawer);
           console.log(openDrawer);
         }}
-      />
+      /> */}
       <div className="flex flex-1 relative">
-        <SidebarMenu navbarHeight="64px" className="sidebar-menu" />
+        <SidebarMenu navbarHeight="0px" className="sidebar-menu" />
         <div className="flex-1 overflow-hidden map-container">
           {geodata && currentPolygonsType && (
             <BaseMap

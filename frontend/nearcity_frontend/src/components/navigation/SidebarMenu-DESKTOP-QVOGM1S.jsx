@@ -4,14 +4,13 @@ import { FiInfo, FiGlobe, FiList, FiLayers, FiGrid, FiBarChart2 } from 'react-ic
 import { GrResources } from "react-icons/gr";
 import ResourceSelector from '@components/SideBarPages/ResourceSelector';
 import CurrentIndicatorContext from "@contexts/indicatorContext";
-import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
 
 const Sidebar = ({ navbarHeight = '10px' }) => {
   const [activePanel, setActivePanel] = useState(null);
   const { currentIndicator, setCurrentIndicator } = useContext(CurrentIndicatorContext);
-  const [tutorial, setTutorial] = useState(false);
+
   const data = [
-    { icon: FiInfo, label: 'Tutorial', id: 'tutorial', function: () => setTutorial(true) },
+    { icon: FiInfo, label: 'Tutorial', id: 'tutorial' },
     { icon: GrResources, label: 'Selección de Recurso', component: ResourceSelector, props: { setIndicator: setCurrentIndicator }, id: 'resourceSelector' },
     { icon: FiList, label: 'List', id: 'list' },
     { icon: FiLayers, label: 'Layers', id: 'layers' },
@@ -20,25 +19,15 @@ const Sidebar = ({ navbarHeight = '10px' }) => {
   ];
   
 
-  const handleButtonClick = (index) => {
-    if (data[index].component) {
-      togglePanel(index);
-      return;
-    }
-
-    if (data[index].function) {
-      data[index].function();
-    }
-    
-  };
-  
+  useEffect(() => {
+    console.log(currentIndicator, setCurrentIndicator)
+  }, [currentIndicator, setCurrentIndicator])
   const togglePanel = (index) => {
     setActivePanel(activePanel === index ? null : index);
   };
 
   return (
     <>
-      <TutorialExample run={tutorial} setRun={setTutorial} />
       {/* Barra de iconos */}
       <div className="w-16 bg-gray-800 h-full flex flex-col items-center py-4 z-10 sideBar">
         {data.map((item, index) => (
@@ -48,7 +37,7 @@ const Sidebar = ({ navbarHeight = '10px' }) => {
             className={`p-3 mb-4 rounded-full hover:bg-gray-700 transition-colors ${
               activePanel === index ? 'bg-blue-500' : ''
             }`}
-            onClick={() => handleButtonClick(index)}
+            onClick={() => togglePanel(index)}
           >
             <item.icon className="text-white text-2xl" />
           </button>

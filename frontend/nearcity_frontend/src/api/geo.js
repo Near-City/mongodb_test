@@ -1,6 +1,5 @@
 import api from "./api";
 
-const API_URL = 'http://localhost:8000/api/'
 
 export const getConfig = () => {
   return api.get(`config/`).then((response) => {
@@ -90,7 +89,7 @@ export const get_indicators = async (area, resource, extra, time, user, red, are
     payload.area_ids = area_ids;
   }
 
-  return api.post(`${API_URL}indicators/`, payload, {
+  return api.post(`indicators/`, payload, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -113,7 +112,7 @@ export const get_isocronas = async (area_id, time, user, red) => {
     red: red,
   };
 
-  return api.post(`${API_URL}isocronas/`, payload, {
+  return api.post(`isocronas/`, payload, {
     headers: {
       "Content-Type": "application/json",
     },

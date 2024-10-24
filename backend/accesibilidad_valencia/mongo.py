@@ -82,4 +82,23 @@ def get_isocronas(area_id, time, user, red):
     
     result = collection.find_one(query)
     
-    return result['geometry']
+    return {
+        "isocrona": result['geometry'],
+        "locs": locs_in_isocrona(result['geometry'], 'loc7')
+        }
+
+def locs_in_isocrona(isocrona_geometry, collection_name):
+    global db
+    collection = db[collection_name]
+    
+    query = {
+        'geometry': {
+            '$geoWithin': {
+                '$geometry': isocrona_geometry
+            }
+        }
+    }
+    
+    result = collection.find(query, {'_id': 0})
+    
+    return list(result)

@@ -79,4 +79,3 @@ const IsocronasManager = ({ config, geojsonData, onPolygonClick }) => {
 };
 
 export default IsocronasManager;
-
