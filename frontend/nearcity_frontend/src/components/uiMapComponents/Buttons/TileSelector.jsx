@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 
-const TileSelector = ({ onClick, isSatellite }) => {
+const TileSelector = ({ onClick, isSatellite, activeExtraButtons, setActiveExtraButtons }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeButtons, setActiveButtons] = useState({
-    relief: false,
-    traffic: false,
-    transit: false,
-    bike: false,
-  });
+  
 
   const handleMenuButtonClick = (buttonKey) => {
-    setActiveButtons((prev) => ({
+    setActiveExtraButtons((prev) => ({
       ...prev,
       [buttonKey]: !prev[buttonKey],
     }));
@@ -49,44 +44,44 @@ const TileSelector = ({ onClick, isSatellite }) => {
             {/* Opciones del menú */}
             <button
               className={`w-20 h-20 bg-transit-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeButtons.transit ? 'border-2 border-blue-400' : ''
+                activeExtraButtons.transito ? 'border-2 border-blue-400' : ''
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleMenuButtonClick('transit');
+                handleMenuButtonClick('transito');
               }}
             >
               Transporte público
             </button>
             <button
               className={`w-20 h-20 bg-relief-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeButtons.relief ? 'border-2 border-blue-400' : ''
+                activeExtraButtons.relieve ? 'border-2 border-blue-400' : ''
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleMenuButtonClick('relief');
+                handleMenuButtonClick('relieve');
               }}
             >
               Relieve
             </button>
             <button
               className={`w-20 h-20 bg-traffic-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeButtons.traffic ? 'border-2 border-blue-400' : ''
+                activeExtraButtons.trafico ? 'border-2 border-blue-400' : ''
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleMenuButtonClick('traffic');
+                handleMenuButtonClick('trafico');
               }}
             >
               Tráfico
             </button>
             <button
               className={`w-20 h-20 bg-bike-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeButtons.bike ? 'border-2 border-blue-400' : ''
+                activeExtraButtons.carril_bici ? 'border-2 border-blue-400' : ''
               }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleMenuButtonClick('bike');
+                handleMenuButtonClick('carril_bici');
               }}
             >
               En bicicleta

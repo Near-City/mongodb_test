@@ -102,3 +102,12 @@ def locs_in_isocrona(isocrona_geometry, collection_name):
     result = collection.find(query, {'_id': 0})
     
     return list(result)
+
+def get_carril_bici():
+    global db
+    collection_name = "bici"
+    collection = db[collection_name]
+    
+    data = list(collection.find({}, {'_id': 0}))
+    
+    return data

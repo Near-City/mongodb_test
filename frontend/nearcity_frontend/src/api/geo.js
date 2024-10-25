@@ -125,3 +125,11 @@ export const get_isocronas = async (area_id, time, user, red) => {
       throw error;
     });
 };
+
+
+export const get_carril_bici = async () => {
+  return api.get(`carrilbici/`).then((response) => {
+    return response.data;
+  });
+
+}

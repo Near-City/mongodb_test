@@ -6,17 +6,11 @@ import MapToolbar from "../components/MapToolBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
-import {
-  getConfig,
-  get_polygons,
-  get_points,
-  get_isocronas,
-} from "../api/geo.js";
+import { get_polygons, get_isocronas, get_carril_bici } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
 import { inRange } from "../mixins/utils.js";
-import { area } from "d3";
 
 import { getCsrfToken } from "../api/geo.js";
 import { getAreaIdsFromData } from "../mixins/utils.js";
@@ -41,10 +35,23 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (!config) return;
     preloadPolygons(config.polygons).then((data) => {
       setLoadedPolygons(data);
       setCurrentPolygonsType(config.defaults.polygon);
       console.log("Polygons preloaded: ", data);
+    });
+
+    get_carril_bici().then((data) => {
+      console.log("Carril bici: ", data);
+      setGeoData((prevGeoData) => ({
+        ...(prevGeoData || {}), // Si geodata no existe, crea un objeto vacío
+        extra: {
+          ...(prevGeoData?.extra || {}), // Si extra no existe, crea un objeto vacío
+          carril_bici: data, // Añade o actualiza la propiedad carril_bici
+        },
+      }));
+      console.log("Carril bici loaded: ", data);
     });
   }, [config.polygons]);
 
@@ -103,7 +110,7 @@ function Dashboard() {
         console.log("Polygons already loaded: ", type);
         console.log(polygons);
 
-        setGeoData({...geodata, polygons: polygons});
+        setGeoData({ ...geodata, polygons: polygons });
 
         return resolve();
       } else if (bounds) {
@@ -111,7 +118,7 @@ function Dashboard() {
         get_polygons(type, bounds)
           .then((data) => {
             const polygonsData = data;
-            setGeoData({...geodata, polygons: polygonsData});
+            setGeoData({ ...geodata, polygons: polygonsData });
             let area_ids = getAreaIdsFromData(polygonsData.features);
             setCurrentInfo({ ...currentInfo, area_ids: area_ids });
             console.log("Polygons loaded: ", type);
@@ -157,9 +164,14 @@ function Dashboard() {
       config?.polygons?.[currentInfo.area].isocronas
     ) {
       instruction = "hide";
-      get_isocronas(areaId, currentInfo.time, currentInfo.user, currentInfo.red).then((data) => {
+      get_isocronas(
+        areaId,
+        currentInfo.time,
+        currentInfo.user,
+        currentInfo.red
+      ).then((data) => {
         console.log("Isocronas: ", data);
-        setGeoData({...geodata, isocronas: data.isocrona, locs: data.locs});
+        setGeoData({ ...geodata, isocronas: data.isocrona, locs: data.locs });
         setCurrentInfo({ ...currentInfo, isocronas: true });
       });
     }
@@ -172,14 +184,13 @@ function Dashboard() {
   const handleIsocronaClick = (e) => {
     console.log("Isocrona clicked: ", e);
     setCurrentInfo({ ...currentInfo, isocronas: false });
-    setGeoData({...geodata, isocronas: null, locs: null});
+    setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
   if (!config) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col h-screen">
-
       {/* <TopBar
         onMenuClick={() => {
           setOpenDrawer(!openDrawer);

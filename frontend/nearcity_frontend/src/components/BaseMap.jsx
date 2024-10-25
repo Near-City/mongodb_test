@@ -11,6 +11,7 @@ import PolygonManager from "./PolygonManager";
 import TileSelector from "./uiMapComponents/Buttons/TileSelector";
 import IsocronasManager from "./IsocronasManager";
 import LocsManager from "./LocsManager";
+import ExtraManager from "./ExtraManager";
 
 import ConfigContext from "../contexts/configContext";
 
@@ -79,6 +80,12 @@ const BaseMap = ({
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [map, setMap] = useState(null);
   const [isSatellite, setIsSatellite] = useState(false);
+  const [activeExtraButtons, setActiveExtraButtons] = useState({
+    relieve: false,
+    trafico: false,
+    transito: false,
+    carril_bici: false,
+  });
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -88,7 +95,8 @@ const BaseMap = ({
       const baseLayer = L.tileLayer(
         "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
         {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }
       );
 
@@ -135,6 +143,10 @@ const BaseMap = ({
     }
   };
 
+  const handleExtraClick = (e) => {
+    console.log("Extra clicked: ", e);
+  };
+
   const bottomButtons = [
     {
       icon: swipeIcon,
@@ -174,11 +186,9 @@ const BaseMap = ({
           config={config}
           geojsonData={areasData?.isocronas}
           onPolygonClick={onIsocronaClick}
-          />
-        <LocsManager
-          config={config}
-          geojsonData={areasData?.locs}
         />
+        <LocsManager config={config} geojsonData={areasData?.locs} />
+        <ExtraManager config={config} geojsonData={areasData?.extra} activeExtra={activeExtraButtons} />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>
@@ -193,7 +203,12 @@ const BaseMap = ({
             isMenuOpen={swipeMenuOpen}
             onMenuToggle={handleSwipeMenuToggle}
           />
-          <TileSelector isSatellite={isSatellite} onClick={toggleLayer} />
+          <TileSelector
+            isSatellite={isSatellite}
+            onClick={toggleLayer}
+            activeExtraButtons={activeExtraButtons}
+            setActiveExtraButtons={setActiveExtraButtons}
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas
+from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas, get_carril_bici
 from .utils import build_geojson_from_features
 # Create your views here.
 
@@ -139,6 +139,10 @@ class IsocronasView(View):
         except json.JSONDecodeError:
             return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")
 
+class CarrilBiciView(View):
+    def get(self, request):
+        carril_bici = get_carril_bici()
+        return JsonResponse(carril_bici, safe=False) 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFTokenView(View):
