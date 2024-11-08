@@ -6,6 +6,8 @@ import MapToolbar from "../components/MapToolBar.jsx";
 import TopBar from "../components/TopBar.jsx";
 import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
+import IndicatorsManager from "@components/IndicatorsManager.jsx";
+
 import { get_polygons, get_isocronas, get_carril_bici } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
@@ -157,18 +159,18 @@ function Dashboard() {
     let instruction = null;
     if (
       currentIndicator &&
-      currentInfo.time &&
-      currentInfo.red &&
-      currentInfo.user &&
+      currentInfo.indicators.primary.time &&
+      currentInfo.indicators.primary.red &&
+      currentInfo.indicators.primary.user &&
       currentInfo.area &&
       config?.polygons?.[currentInfo.area].isocronas
     ) {
       instruction = "hide";
       get_isocronas(
         areaId,
-        currentInfo.time,
-        currentInfo.user,
-        currentInfo.red
+        currentInfo.indicators.primary.time,
+        currentInfo.indicators.primary.user,
+        currentInfo.indicators.primary.red
       ).then((data) => {
         console.log("Isocronas: ", data);
         setGeoData({ ...geodata, isocronas: data.isocrona, locs: data.locs });
@@ -197,6 +199,7 @@ function Dashboard() {
           console.log(openDrawer);
         }}
       /> */}
+      <IndicatorsManager />
       <div className="flex flex-1 relative">
         <SidebarMenu navbarHeight="0px" className="sidebar-menu" />
         <div className="flex-1 overflow-hidden map-container">

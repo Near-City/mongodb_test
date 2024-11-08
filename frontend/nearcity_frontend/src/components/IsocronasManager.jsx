@@ -34,8 +34,12 @@ const IsocronasManager = ({ config, geojsonData, onPolygonClick }) => {
 
   useEffect(() => {
     if (!geojsonData && initialView?.center && initialView?.zoom) {
+      let zoomToRestore = initialView.zoom;
+      if (zoomToRestore === map.getZoom()) {
+        zoomToRestore = zoomToRestore + 1;
+      }
       // Si geojsonData es nulo, restaurar la vista inicial
-      map.setView(initialView.center, initialView.zoom);
+      map.setView(initialView.center, zoomToRestore);
       return;
     }
 

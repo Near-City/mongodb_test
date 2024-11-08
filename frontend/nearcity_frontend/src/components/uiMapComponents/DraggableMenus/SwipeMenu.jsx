@@ -37,7 +37,7 @@ const SwipeMenu = ({ isMenuOpen, onMenuToggle }) => {
           {" "}
           <div>
             <h1 className="bold">Swipe</h1>
-            <ResourceSelector setIndicator={setSecondIndicator} />
+            <ResourceSelector setIndicator={setSecondIndicator} indicatorName="secondary" />
           </div>
         </DraggableMenu>
       )}

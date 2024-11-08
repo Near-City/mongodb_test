@@ -52,7 +52,6 @@ const ExtraManager = ({ config, geojsonData, activeExtra }) => {
       return;
     }
 
-    console.log("ExtraManager geojsonData: ", geojsonData);
     Object.keys(activeExtra).forEach((extra) => {
       if (activeExtra[extra] && geojsonData[extra]) {
         console.log("Rendering extra: ", extra);

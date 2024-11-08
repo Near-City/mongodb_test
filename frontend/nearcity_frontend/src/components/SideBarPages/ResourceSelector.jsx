@@ -12,7 +12,7 @@ import {
 
 import { get_indicators } from "@api/geo";
 
-const ResourceSelector = ({ setIndicator }) => {
+const ResourceSelector = ({ setIndicator, indicatorName = "primary" }) => {
   const config = useContext(ConfigContext);
   
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
@@ -29,156 +29,202 @@ const ResourceSelector = ({ setIndicator }) => {
   const [userOptions, setUserOptions] = useState([]);
   const [redOptions, setRedOptions] = useState([]);
 
-  const handleResourceChange = (value) => {
-    console.log("Resource changed: ", value);
+  const updateIndicatorInCurrentInfo = (indicatorName, indicatorProperty, value) => {
+    console.log("Updating indicator in current info: ", indicatorName, indicatorProperty, value);
+    setCurrentInfo(prevState => {
+      const indicators = prevState.indicators || {};
+      const indicator = indicators[indicatorName] || {};
+      return {
+        ...prevState,
+        indicators: {
+          ...indicators,
+          [indicatorName]: {
+            ...indicator,
+            [indicatorProperty]: value
+          }
+        }
+      };
+    });
+  };
+
+  const getIndicatorPropertyInCurrentInfo = (indicatorName, indicatorProperty) => {
+    if (!currentInfo || !currentInfo.indicators) return null;
+    const indicators = currentInfo.indicators || {};
+    const indicator = indicators[indicatorName] || {};
+    return indicator[indicatorProperty];
+  };
+
+  const selectOptionsWithSavedInfo = () => {
+    const resource = getIndicatorPropertyInCurrentInfo(indicatorName, "resource");
+    const extra = getIndicatorPropertyInCurrentInfo(indicatorName, "extra");
+    const time = getIndicatorPropertyInCurrentInfo(indicatorName, "time");
+    const user = getIndicatorPropertyInCurrentInfo(indicatorName, "user");
+    const red = getIndicatorPropertyInCurrentInfo(indicatorName, "red");
+
+    if (resource) setSelectedResource(resource);
+    if (extra) setSelectedExtra(extra);
+    if (time) setSelectedTime(time);
+    if (user) setSelectedUser(user);
+    if (red) setSelectedRed(red);
+  };
+
+
+  const refreshOptionsOnResource = (resourceValue) => {
     const extra_options = getValueLabelFromListAndObject(
-      config.schema.options[value].extra,
+      config.schema.options[resourceValue].extra,
       config.schema.labels.extra
     );
     const time_options = getValueLabelFromListAndObject(
-      config.schema.options[value].time,
+      config.schema.options[resourceValue].time,
       config.schema.labels.time
     );
     const user_options = getValueLabelFromListAndObject(
-      config.schema.options[value].user,
+      config.schema.options[resourceValue].user,
       config.schema.labels.user
     );
     const red_options = getValueLabelFromListAndObject(
-      config.schema.options[value].red,
+      config.schema.options[resourceValue].red,
       config.schema.labels.red
     );
-    // Actualiza las opciones dependiendo del recurso seleccionado
-    setSelectedResource(value);
+
     setTimeOptions(time_options);
     setExtraOptions(extra_options);
     setUserOptions(user_options);
     setRedOptions(red_options);
-    setCurrentInfo({ ...currentInfo, resource: value });
-
-
-    if (extra_options.length > 0 && !selectedExtra)
-      handleExtraChange(extra_options[0].value);
-    if (time_options.length > 0 && !selectedTime)
-      handleTimeChange(time_options[0].value);
-    if (user_options.length > 0 && !selectedUser)
-      handleUserChange(user_options[0].value);
-    if (red_options.length > 0 && !selectedRed)
-      handleRedChange(red_options[0].value);
   };
+
+  const handleResourceChange = (value) => {
+    console.log("Resource changed: ", value);
+    refreshOptionsOnResource(value);
+
+    setSelectedResource(value);
+      updateIndicatorInCurrentInfo(indicatorName, "resource", value);
+    };
 
   const handleExtraChange = (value) => {
     console.log("Extra changed: ", value);
     setSelectedExtra(value);
-    setCurrentInfo({ ...currentInfo, extra: value });
+    updateIndicatorInCurrentInfo(indicatorName, "extra", value);
   };
 
   const handleTimeChange = (value) => {
     console.log("Time changed: ", value);
     setSelectedTime(value);
-    setCurrentInfo({ ...currentInfo, time: value });
+    updateIndicatorInCurrentInfo(indicatorName, "time", value);
   };
 
   const handleUserChange = (value) => {
     console.log("User changed: ", value);
     setSelectedUser(value);
-    setCurrentInfo({ ...currentInfo, user: value });
+    updateIndicatorInCurrentInfo(indicatorName, "user", value);
   };
 
   const handleRedChange = (value) => {
     console.log("Red changed: ", value);
     setSelectedRed(value);
-    setCurrentInfo({ ...currentInfo, red: value });
+    updateIndicatorInCurrentInfo(indicatorName, "red", value);
   };
 
-  useEffect(() => {
-    if (!currentInfo) return;
-    
-    if (currentInfo.resource) setSelectedResource(currentInfo.resource);
-    if (currentInfo.extra) setSelectedExtra(currentInfo.extra);
-    if (currentInfo.time) setSelectedTime(currentInfo.time);
-    if (currentInfo.user) setSelectedUser(currentInfo.user);
-    if (currentInfo.red) setSelectedRed(currentInfo.red);
-  }, []);
 
   useEffect(() => {
-    console.log("Config changed: ", config);
     if (!config) return;
     const resources_data = getValueLabelFromSeparatedObjects(
       config.schema.options,
       config.schema.labels.locs
     );
-    console.log("Resources: ", resources_data);
     setResources(resources_data);
-    handleResourceChange(resources_data[0].value);
+
+    // Si ya tengo valores guardados previos en currentInfo, no es necesario escoger el primer valor por defecto
+    let prevResource = getIndicatorPropertyInCurrentInfo(indicatorName, "resource");
+    let resource = prevResource || resources_data[0].value;
+    refreshOptionsOnResource(resource);
+
+    if (prevResource) selectOptionsWithSavedInfo();
+    else handleResourceChange(resource); // Seleccionar el primer recurso por defecto
   }, [config]);
 
+  // useEffect(() => {
+  //   if (!currentInfo || !currentInfo.area || (currentInfo.area_ids && !config.polygons[currentInfo.area].lazyLoading)) 
+  //     {
+  //       console.log("No need to re-query indicator");
+  //       return;}
+  //   console.log("Re-Querying Indicator with Area: ", currentInfo);
+  //   executeQuery();
+  // }, [currentInfo.area, currentInfo.area_ids]);
+
   useEffect(() => {
-    if (!currentInfo || !currentInfo.area || (currentInfo.area_ids && !config.polygons[currentInfo.area].lazyLoading)) return;
-    console.log("Re-Querying Indicator with Area: ", currentInfo);
-    executeQuery();
-  }, [currentInfo.area, currentInfo.area_ids]);
+    if (extraOptions.length > 0 && !selectedExtra)
+      handleExtraChange(extraOptions[0].value);
+    if (timeOptions.length > 0 && !selectedTime)
+      handleTimeChange(timeOptions[0].value);
+    if (userOptions.length > 0 && !selectedUser)
+      handleUserChange(userOptions[0].value);
+    if (redOptions.length > 0 && !selectedRed)
+      handleRedChange(redOptions[0].value);
+  }, [extraOptions, timeOptions, userOptions, redOptions]);
 
-  const checkEveryParam = () => {
-    if (
-      selectedResource &&
-      selectedExtra &&
-      selectedTime &&
-      selectedUser &&
-      selectedRed
-    )
-      return true;
 
-    console.log("Missing parameters", {
-      selectedResource,
-      selectedExtra,
-      selectedTime,
-      selectedUser,
-      selectedRed,
-    });
-    return false;
-  };
+  // const checkEveryParam = () => {
+  //   if (
+  //     selectedResource &&
+  //     selectedExtra &&
+  //     selectedTime &&
+  //     selectedUser &&
+  //     selectedRed
+  //   )
+  //     return true;
 
-  const executeQuery = () => {
-    if (!checkEveryParam()) return;
-    setIndicator(null);
-    console.log("Executing query");
-    console.log("Resource: ", selectedResource);
-    console.log("Extra: ", selectedExtra);
-    console.log("Time: ", selectedTime);
-    console.log("User: ", selectedUser);
-    console.log("Red: ", selectedRed);
-    const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
-    const area_ids = currentInfo.area_ids ? currentInfo.area_ids : [];
-    console.log("Area IDS: ", area_ids);
-    console.log("Area: ", area);
-    get_indicators(
-      area,
-      selectedResource,
-      selectedExtra,
-      selectedTime,
-      selectedUser,
-    selectedRed,
-      area_ids
-    )
-      .then((data) => {
-        console.log(
-          "NUEVO INDICADOR: ",
-          area,
-          selectedResource,
-          selectedExtra,
-          selectedTime,
-          selectedUser,
-          selectedRed,
-          area_ids
-        );
+  //   console.log("Missing parameters", {
+  //     selectedResource,
+  //     selectedExtra,
+  //     selectedTime,
+  //     selectedUser,
+  //     selectedRed,
+  //   });
+  //   return false;
+  // };
 
-        setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded", area: area, resource: selectedResource, extra: selectedExtra, time: selectedTime, user: selectedUser, red: selectedRed });
-        setIndicator(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-      });
-  };
+  // const executeQuery = () => {
+  //   if (!checkEveryParam()) return;
+  //   setIndicator(null);
+  //   console.log("Executing query");
+  //   console.log("Resource: ", selectedResource);
+  //   console.log("Extra: ", selectedExtra);
+  //   console.log("Time: ", selectedTime);
+  //   console.log("User: ", selectedUser);
+  //   console.log("Red: ", selectedRed);
+  //   const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
+  //   const area_ids = currentInfo.area_ids ? currentInfo.area_ids : [];
+  //   console.log("Area IDS: ", area_ids);
+  //   console.log("Area: ", area);
+  //   get_indicators(
+  //     area,
+  //     selectedResource,
+  //     selectedExtra,
+  //     selectedTime,
+  //     selectedUser,
+  //   selectedRed,
+  //     area_ids
+  //   )
+  //     .then((data) => {
+  //       console.log(
+  //         "NUEVO INDICADOR: ",
+  //         area,
+  //         selectedResource,
+  //         selectedExtra,
+  //         selectedTime,
+  //         selectedUser,
+  //         selectedRed,
+  //         area_ids
+  //       );
+
+  //       setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded"});
+  //       setIndicator(data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching data: ", error);
+  //     });
+  // };
 
   return (
     <div className="w-80 flex flex-col gap-5">
@@ -215,7 +261,7 @@ const ResourceSelector = ({ setIndicator }) => {
   )}
 
   {/* Tercera fila */}
-  {selectedResource && selectedTime && selectedUser && (
+  {selectedResource && redOptions && (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       <SelectComponent
         items={redOptions}
@@ -225,7 +271,7 @@ const ResourceSelector = ({ setIndicator }) => {
     </div>
   )}
 
-  <ExecuteBtn onClick={executeQuery} />
+
 </div>
 
   );

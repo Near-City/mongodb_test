@@ -1,28 +1,28 @@
 {
   "polygons": {
     "D": {
-      "name": "districts",
+      "name": "Distritos",
       "collection": "distritos",
       "zoomRange": [9, 12],
       "lazyLoading": false,
       "saveToCache": true
     },
     "B": {
-      "name": "neighborhoods",
+      "name": "Barrios",
       "collection": "barrios",
       "zoomRange": [13, 14],
       "lazyLoading": false,
       "saveToCache": true
     },
     "SC": {
-      "name": "sections",
+      "name": "Secciones",
       "collection": "secciones",
       "zoomRange": [15, 16],
       "lazyLoading": false,
       "saveToCache": true
     },
     "PC": {
-      "name": "plots",
+      "name": "Parcelas Catastrales",
       "collection": "parcelas",
       "zoomRange": [17, 19],
       "lazyLoading": true,
