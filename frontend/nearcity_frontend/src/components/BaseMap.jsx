@@ -12,6 +12,7 @@ import TileSelector from "./uiMapComponents/Buttons/TileSelector";
 import IsocronasManager from "./IsocronasManager";
 import LocsManager from "./LocsManager";
 import ExtraManager from "./ExtraManager";
+import DebouncedSearchBar from "./uiMapComponents/SearchBars/DebouncedSearchBar";
 
 import ConfigContext from "../contexts/configContext";
 
@@ -76,6 +77,9 @@ const BaseMap = ({
   onIsocronaClick,
   viewInfo,
   onUserMovedMap,
+  handleSearch,
+  searchResults,
+  onResultClick,
 }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [map, setMap] = useState(null);
@@ -209,6 +213,8 @@ const BaseMap = ({
             activeExtraButtons={activeExtraButtons}
             setActiveExtraButtons={setActiveExtraButtons}
           />
+          <DebouncedSearchBar onSearch={handleSearch} results={searchResults} onResultClick={onResultClick} />
+
         </div>
       </div>
     </div>

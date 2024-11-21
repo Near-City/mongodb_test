@@ -133,3 +133,12 @@ export const get_carril_bici = async () => {
   });
 
 }
+
+export const get_search = async (search) => {
+  const params = new URLSearchParams();
+  params.append('query', search);
+  return api.get(`search/?${params.toString()}`).then((response) => {
+    return response.data;
+  });
+
+}

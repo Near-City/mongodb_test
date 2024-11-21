@@ -1,4 +1,6 @@
 from pymongo import MongoClient
+from unidecode import unidecode
+from Levenshtein import distance
 
 db = None
 
@@ -111,3 +113,29 @@ def get_carril_bici():
     data = list(collection.find({}, {'_id': 0}))
     
     return data
+
+
+def search(termino):
+    search = unidecode(termino.lower())
+    barrios = db["barrios"]
+    
+    # regex
+    resultados = list(barrios.find({
+        "properties.nombre_normalizado": {"$regex": f".*{search}.*", "$options": "i"}
+    }))
+
+    if not resultados:
+    # si no hay resultados, buscar con distancia de Levenshtein
+        todos = list(barrios.find())
+        resultados = [
+            barrio for barrio in todos
+            if distance(search, barrio["properties"]["nombre_normalizado"]) <= 2
+        ]
+    
+    #sino da error al serializar el _id
+    for resultado in resultados:
+        if "_id" in resultado:
+            resultado["_id"] = str(resultado["_id"])
+    
+    return resultados
+

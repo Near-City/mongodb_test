@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import LeafletMapWithD3Overlay from "../components/LeafletMapWithD3Overlay.jsx";
 import BaseMap from "../components/BaseMap.jsx";
 import SidePanel from "../components/SidePanel.jsx";
@@ -8,7 +8,7 @@ import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
 import IndicatorsManager from "@components/IndicatorsManager.jsx";
 
-import { get_polygons, get_isocronas, get_carril_bici } from "../api/geo.js";
+import { get_polygons, get_isocronas, get_carril_bici, get_search } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
@@ -27,7 +27,7 @@ function Dashboard() {
   const [loadedPolygons, setLoadedPolygons] = useState({});
 
   const [geodata, setGeoData] = useState(null);
-
+  const [searchResults, setSearchResults] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(true);
 
   useEffect(() => {
@@ -189,6 +189,19 @@ function Dashboard() {
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
+  const handleSearch = useCallback((searchTerm) => {
+    console.log("Search term: ", searchTerm);
+    get_search(searchTerm).then((data) => {
+      console.log("Search results: ", data);
+      setSearchResults(data);
+      // setGeoData({ ...geodata, searchResults: data });
+    });
+  }, []);
+
+  const handleSearchResultClick = (result) => {
+    console.log("Search result clicked: ", result);
+  };
+
   if (!config) return <div>Loading...</div>;
 
   return (
@@ -211,6 +224,9 @@ function Dashboard() {
               onIsocronaClick={handleIsocronaClick}
               onUserMovedMap={handleUserMovedMap}
               viewInfo={config.polygons[currentPolygonsType]?.name}
+              handleSearch={handleSearch}
+              searchResults={searchResults}
+              onResultClick={handleSearchResultClick}
             />
           )}
         </div>

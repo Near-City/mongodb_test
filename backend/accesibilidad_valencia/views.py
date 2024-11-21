@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas, get_carril_bici
+from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas, get_carril_bici, search
 from .utils import build_geojson_from_features
 # Create your views here.
 
@@ -143,6 +143,12 @@ class CarrilBiciView(View):
     def get(self, request):
         carril_bici = get_carril_bici()
         return JsonResponse(carril_bici, safe=False) 
+    
+class SearchView(View):
+    def get(self, request):
+        query = request.GET.get('query')
+        search_results = search(query)
+        return JsonResponse(search_results, safe=False)
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFTokenView(View):
