@@ -5,6 +5,7 @@ import CurrentIndicatorContext from "@contexts/indicatorContext";
 import SecondIndicatorContext from "@contexts/secondIndicatorContext";
 import CurrentInfoContext from "@contexts/currentInfoContext";
 import SwipeBar from "./uiMapComponents/SwipeBar";
+import { find_polygon_with_area_id } from "../mixins/utils";
 
 const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
   const map = useMap();
@@ -14,6 +15,9 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
 
   const [leftLayerGroup, setLeftLayerGroup] = useState(L.layerGroup());
   const [rightLayerGroup, setRightLayerGroup] = useState(null);
+
+  
+  
 
   const getColor = (areaId, indicator) => {
     if (!config || !areaId || currentInfo.indicatorStatus !== 'loaded' || !indicator || !indicator[areaId]) {
@@ -87,8 +91,22 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
   };
 
   useEffect(() => {
-    if (!geojsonData) return;
-
+    console.log("Current Info: ", currentInfo);
+    console.log("GeojsonData: ", geojsonData);
+    if (!geojsonData || !currentInfo.filter) return;
+    if (currentInfo.filter.barrio) {
+      console.log("Filtering by barrio: ", currentInfo.filter.barrio);
+      const area_id = currentInfo.filter.barrio;
+      const feature = find_polygon_with_area_id(geojsonData, area_id);
+      if (feature) {
+        showOnlyClickedPolygon(feature);
+      }
+    }
+  }, [geojsonData, currentInfo.filter, currentInfo.indicatorStatus])
+ 
+  useEffect(() => {
+    if (!geojsonData || currentInfo.filter?.barrio) return;
+    
     if (leftLayerGroup) {
     // Limpiar los LayerGroups actuales
     leftLayerGroup.clearLayers();
@@ -140,7 +158,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
         map.removeLayer(rightLayerGroup);
       }
     };
-  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map]);
+  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map, currentInfo.filter]);
 
   return swipeOpen && leftLayerGroup && rightLayerGroup ? (
     <SwipeBar map={map} leftLayer={leftLayerGroup} rightLayer={rightLayerGroup} />

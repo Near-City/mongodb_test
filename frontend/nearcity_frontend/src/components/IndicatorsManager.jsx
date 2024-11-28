@@ -3,6 +3,7 @@ import CurrentInfoContext from "@contexts/currentInfoContext";
 import { get_indicators } from "@api/geo";
 import ConfigContext from "@contexts/configContext";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
+import SecondIndicatorContext from "@contexts/secondIndicatorContext";
 
 const IndicatorsManager = () => {
   const indicatorParams = ["resource", "extra", "time", "user", "red"];
@@ -10,6 +11,9 @@ const IndicatorsManager = () => {
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
   const { currentIndicator, setCurrentIndicator } = useContext(
     CurrentIndicatorContext
+  );
+  const { secondIndicator, setSecondIndicator } = useContext(
+    SecondIndicatorContext
   );
 
   const checkEveryParam = (indicator) => {
@@ -62,14 +66,26 @@ const IndicatorsManager = () => {
         }
       });
     }
+
+    if (secondaryIndicator && checkEveryParam(secondaryIndicator)) {
+      console.log("Secondary indicator is complete: ", secondaryIndicator);
+      requestIndicators(secondaryIndicator).then((data) => {
+        if (data) {
+          setSecondIndicator(data);
+          setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded" });
+        }
+      });
+    }
   }, [currentInfo.indicators]);
 
   useEffect(() => {
     if (
-      !currentInfo ||
-      !currentInfo.indicators ||
-      !currentInfo.area ||
-      (currentInfo.area_ids && !config.polygons[currentInfo.area].lazyLoading)
+      
+      (!currentInfo ||
+        !currentInfo.indicators ||
+        !currentInfo.area ||
+        (currentInfo.area_ids &&
+          !config.polygons[currentInfo.area].lazyLoading))
     ) {
       console.log("No need to re-query indicator");
       return;

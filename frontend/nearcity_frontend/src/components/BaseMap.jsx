@@ -13,7 +13,7 @@ import IsocronasManager from "./IsocronasManager";
 import LocsManager from "./LocsManager";
 import ExtraManager from "./ExtraManager";
 import DebouncedSearchBar from "./uiMapComponents/SearchBars/DebouncedSearchBar";
-
+import FilterManager from "./FilterManager";
 import ConfigContext from "../contexts/configContext";
 
 const MapBounds = () => {
@@ -190,6 +190,10 @@ const BaseMap = ({
           config={config}
           geojsonData={areasData?.isocronas}
           onPolygonClick={onIsocronaClick}
+        />
+        <FilterManager 
+        config={config}
+        geojsonData={areasData?.polygons}
         />
         <LocsManager config={config} geojsonData={areasData?.locs} />
         <ExtraManager config={config} geojsonData={areasData?.extra} activeExtra={activeExtraButtons} />

@@ -8,7 +8,12 @@ import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
 import IndicatorsManager from "@components/IndicatorsManager.jsx";
 
-import { get_polygons, get_isocronas, get_carril_bici, get_search } from "../api/geo.js";
+import {
+  get_polygons,
+  get_isocronas,
+  get_carril_bici,
+  get_search,
+} from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
 import CurrentIndicatorContext from "@contexts/indicatorContext";
@@ -16,6 +21,7 @@ import { inRange } from "../mixins/utils.js";
 
 import { getCsrfToken } from "../api/geo.js";
 import { getAreaIdsFromData } from "../mixins/utils.js";
+import { filter } from "d3";
 
 function Dashboard() {
   const config = useContext(ConfigContext);
@@ -84,7 +90,7 @@ function Dashboard() {
   }, [geodata]);
 
   const handleUserMovedMap = (zoom, bounds) => {
-    if (currentInfo?.isocronas) return; // Si hay isocronas, no hacer nada
+    if (currentInfo?.isocronas || currentInfo?.filter) return; // Si hay isocronas o hay un filtro activo, no hacer nada
     console.log("Zoom level: ", zoom);
     console.log("Bounds: ", bounds);
     Object.keys(config.polygons).forEach((key) => {
@@ -176,6 +182,9 @@ function Dashboard() {
         setGeoData({ ...geodata, isocronas: data.isocrona, locs: data.locs });
         setCurrentInfo({ ...currentInfo, isocronas: true });
       });
+    } else if (currentInfo.filter) {
+      // Si hay un filtro activo, desactivarlo -> SOLUCION TEMPORAL
+      setCurrentInfo({ ...currentInfo, filter: null });
     }
 
     console.log("Area ID: ", e.target.feature.properties);
@@ -200,6 +209,26 @@ function Dashboard() {
 
   const handleSearchResultClick = (result) => {
     console.log("Search result clicked: ", result);
+    if (result.type === "barrio") {
+      console.log("Barrio clicked: ", result);
+      let id = result.id;
+      setCurrentInfo({ ...currentInfo, filter: { barrio: id } });
+      setCurrentPolygonsType("B");
+    } else if (result.type === "calle") {
+      console.log("Calle clicked: ", result);
+      let name = result.name;
+      setCurrentInfo({ ...currentInfo, filter: { calle: name } });
+      let parcelas = result.parcelas
+      if (parcelas){
+        console.log("Parcelas: ", parcelas);
+        let featureCollection = {
+          type: "FeatureCollection",
+          features: parcelas
+        }
+        setGeoData({ ...geodata, polygons: featureCollection });
+        setCurrentPolygonsType("PC");
+      }
+    }
   };
 
   if (!config) return <div>Loading...</div>;

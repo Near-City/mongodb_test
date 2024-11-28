@@ -51,10 +51,11 @@ function SearchBar({ onSearch, results, onResultClick }) {
           {results.map((result, index) => (
             <div
               key={index}
-              className="p-3 hover:bg-blue-100 cursor-pointer text-gray-700"
+              className="p-3 flex justify-between hover:bg-blue-100 cursor-pointer text-gray-700"
               onClick={() => onResultClick(result)}
             >
-              {result.properties.N_BAR} {/* Muestra el nombre del barrio */}
+              <span>{result.name}</span> {/* Muestra el nombre del barrio */}
+              <span className="text-gray-500 text-sm">{result.type}</span> {/* Muestra el tipo */}
             </div>
           ))}
         </div>

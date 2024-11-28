@@ -1,32 +1,8 @@
 from pymongo import MongoClient
 from unidecode import unidecode
 from Levenshtein import distance
-from .utils import format_resultados_barrios, format_resultados_parcelas, normalizar_y_extraer_numero, serialize_object_ids
 
 db = None
-STOPWORDS = [
-    "avenida", "av",
-    "barrio", "br",
-    "calle", "cl",
-    "callejon", "cj",
-    "camino", "cm",
-    "carretera", "cr",
-    "diseminado", "ds",
-    "edificio", "ed",
-    "entrada", "en",
-    "grupo", "gr",
-    "gran via", "gv",
-    "lugar", "lg",
-    "paraje", "pd",
-    "pasaje", "pj",
-    "plaza", "pl", "pz",
-    "procedimiento", "proc",
-    "paseo", "ps",
-    "subida", "sd",
-    "travesia", "tr",
-    "urbanizacion", "ur",
-    "de", "del", "la", "los", "las", "el"  # Palabras comunes de enlace
-]
 
 def get_mongo_connection():
     global db
@@ -138,68 +114,28 @@ def get_carril_bici():
     
     return data
 
-def buscar_parcela(parcelas_collection, calle, numero=None):
-    calle_normalizada, numero = normalizar_y_extraer_numero(calle, stopwords=STOPWORDS)
-    resultados = []
 
-    # Construir regex para buscar coincidencias flexibles
-    regex_calle = {"$regex": f".*{calle_normalizada}.*", "$options": "i"}
-
-    if numero:
-        resultados = parcelas_collection.find({
-            "properties.calle_normalizada": regex_calle,
-            "properties.numero": numero
-        })
-        resultados = serialize_object_ids(resultados)
-        if resultados: # Ha encontrado una parcela con ese número
-            # Cogemos calle de referencia
-            calle = resultados[0].get("properties", {}).get("direccion")
-            return [format_resultados_parcelas("parcela", calle, list(resultados))]
+def search(termino):
+    search = unidecode(termino.lower())
+    barrios = db["barrios"]
     
-    # Si no se proporciona un número o no hay resultados, buscar todas las parcelas en la calle
-    resultados = parcelas_collection.find({
-        "properties.calle_normalizada": regex_calle
-    })
-    resultados = serialize_object_ids(resultados)
-    if resultados:  # Pueden haber varias calles aquí
-        uniq_calles = {parcela.get("properties", {}).get("calle") for parcela in resultados}
-        res = []
-        for calle in uniq_calles:
-            parcelas_calle = [parcela for parcela in resultados if parcela.get("properties", {}).get("calle") == calle] # Para cada calle sacamos sus parcelas
-            res.append(format_resultados_parcelas("calle", calle, parcelas_calle))
-        return res
-
-    return []
-
-
-
-def buscar_barrio(barrios_collection, termino):
-    termino_normalizado = unidecode(termino.lower())
-
-    # Búsqueda rápida con regex
-    resultados = list(barrios_collection.find({
-        "properties.nombre_normalizado": {"$regex": f".*{termino_normalizado}.*", "$options": "i"}
+    # regex
+    resultados = list(barrios.find({
+        "properties.nombre_normalizado": {"$regex": f".*{search}.*", "$options": "i"}
     }))
 
     if not resultados:
-        # Si no hay resultados, buscar con distancia de Levenshtein
-        todos = list(barrios_collection.find())
+    # si no hay resultados, buscar con distancia de Levenshtein
+        todos = list(barrios.find())
         resultados = [
             barrio for barrio in todos
-            if distance(termino_normalizado, barrio["properties"]["nombre_normalizado"]) <= 2
+            if distance(search, barrio["properties"]["nombre_normalizado"]) <= 2
         ]
     
-    resultados = serialize_object_ids(resultados)
-
-    return [format_resultados_barrios(barrio.get("properties", {}).get("C_DISTBAR"), barrio.get("properties", {}).get("N_BAR") ) for barrio in resultados]
-
-def search(termino):
-    resultados = buscar_parcela(db["parcelas"], termino) + buscar_barrio(db["barrios"], termino)
-    
-    # #sino da error al serializar el _id
-    # for resultado in resultados:
-    #     if "_id" in resultado:
-    #         resultado["_id"] = str(resultado["_id"])
+    #sino da error al serializar el _id
+    for resultado in resultados:
+        if "_id" in resultado:
+            resultado["_id"] = str(resultado["_id"])
     
     return resultados
 
