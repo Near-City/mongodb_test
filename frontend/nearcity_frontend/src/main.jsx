@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 
 import Test from "./views/Dashboard";
-
+import Prueba from "./views/Prueba";
 import { ConfigProvider } from "./contexts/configContext";
 import { CurrentIndicatorProvider } from "./contexts/indicatorContext";
 import { SecondIndicatorProvider } from "./contexts/secondIndicatorContext";
@@ -14,6 +14,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Test />,
+  },
+  {
+    path: "/prueba",
+    element: <Prueba />,
   },
 ]);
 

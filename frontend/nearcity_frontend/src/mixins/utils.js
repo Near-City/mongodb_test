@@ -29,3 +29,12 @@ export const find_polygon_with_area_id = (geojsonData, area_id) => {
       }
     }
   };
+
+
+  const setViewInfo = (setCurrentInfo, text, onClose) => {
+    setCurrentInfo({ ...currentInfo, viewInfo: { text: text, onClose: onClose } });
+  };
+
+  const removeViewInfo = (setCurrentInfo) => {
+    setCurrentInfo({ ...currentInfo, viewInfo: null });
+  };

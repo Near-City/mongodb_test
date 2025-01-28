@@ -17,10 +17,12 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
   const [rightLayerGroup, setRightLayerGroup] = useState(null);
 
   
-  
+  const polygonHasIndicator = (areaId, indicator) => {
+    return !(!config || !areaId || currentInfo.indicatorStatus !== 'loaded' || !indicator || !indicator[areaId]);
+  };
 
   const getColor = (areaId, indicator) => {
-    if (!config || !areaId || currentInfo.indicatorStatus !== 'loaded' || !indicator || !indicator[areaId]) {
+    if (!polygonHasIndicator(areaId, indicator)) {
       return config.colors.accesibilidad.ERROR || 'gray';
     }
     return config.colors.accesibilidad[indicator[areaId]];
@@ -44,6 +46,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
 
   const handlePolygonClick = (e) => {
     if (swipeOpen) return; // No hacer nada si el swipe está abierto
+    // if (!polygonHasIndicator(e.target.feature.properties.area_id, currentIndicator)) return; // No hacer nada si no hay indicador
     let instruction = onPolygonClick(e); // Propagar el evento al padre
     if (instruction === 'hide') {
     showOnlyClickedPolygon(e.target.feature);
@@ -104,8 +107,8 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
     }
   }, [geojsonData, currentInfo.filter, currentInfo.indicatorStatus])
  
-  useEffect(() => {
-    if (!geojsonData || currentInfo.filter?.barrio) return;
+  useEffect(() => { // se oculta el poligono la poner la isocrona por culpa de este useEffect y de su dependencia con isocronas
+    if (!geojsonData || currentInfo.filter?.barrio || currentInfo.isocronas) return;
     
     if (leftLayerGroup) {
     // Limpiar los LayerGroups actuales
@@ -158,7 +161,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
         map.removeLayer(rightLayerGroup);
       }
     };
-  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map, currentInfo.filter]);
+  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map, currentInfo.filter, currentInfo.isocronas]);
 
   return swipeOpen && leftLayerGroup && rightLayerGroup ? (
     <SwipeBar map={map} leftLayer={leftLayerGroup} rightLayer={rightLayerGroup} />

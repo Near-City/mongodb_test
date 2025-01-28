@@ -15,6 +15,11 @@ import ExtraManager from "./ExtraManager";
 import DebouncedSearchBar from "./uiMapComponents/SearchBars/DebouncedSearchBar";
 import FilterManager from "./FilterManager";
 import ConfigContext from "../contexts/configContext";
+import IndicatorSelector from "./uiMapComponents/uiModels/IndicatorSelector";
+
+import { FaPersonWalkingWithCane } from "react-icons/fa6";
+import { FaWalking } from "react-icons/fa";
+
 
 const MapBounds = () => {
   const map = useMap();
@@ -75,7 +80,6 @@ const BaseMap = ({
   areasData,
   onPolygonClick,
   onIsocronaClick,
-  viewInfo,
   onUserMovedMap,
   handleSearch,
   searchResults,
@@ -90,6 +94,8 @@ const BaseMap = ({
     transito: false,
     carril_bici: false,
   });
+
+
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -151,20 +157,21 @@ const BaseMap = ({
     console.log("Extra clicked: ", e);
   };
 
-  const bottomButtons = [
+  const redIcon = () => {
+    return FaPersonWalkingWithCane;
+  };
+
+  const topLeftButtons = [
     {
       icon: swipeIcon,
       onClick: () => handleSwipeMenuToggle(),
       id: "swipe",
     },
     {
-      icon: "icon2",
-      onClick: () => console.log("icon2"),
-    },
-    {
-      icon: "icon3",
-      onClick: () => console.log("icon3"),
-    },
+      icon: <FaPersonWalkingWithCane className="h-8 w-8" />,
+      onClick: () => handleExtraClick("red"),
+      id: "red",
+    }
   ];
 
   return (
@@ -179,6 +186,7 @@ const BaseMap = ({
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         /> */}
+
         <GeoJSON data={areasData?.polygons} style={{ color: "white" }} />
         <PolygonManager
           config={config}
@@ -205,8 +213,9 @@ const BaseMap = ({
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
       >
         <div className="relative w-full h-full pointer-events-auto">
-          <ViewInfoBar viewInfo={viewInfo} />
-          <ButtonGroup buttonsInfo={bottomButtons} />
+          <ViewInfoBar />
+          <ButtonGroup buttonsInfo={topLeftButtons} />
+          <IndicatorSelector />
           <SwipeMenu
             isMenuOpen={swipeMenuOpen}
             onMenuToggle={handleSwipeMenuToggle}

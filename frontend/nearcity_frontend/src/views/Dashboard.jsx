@@ -90,6 +90,7 @@ function Dashboard() {
   }, [geodata]);
 
   const handleUserMovedMap = (zoom, bounds) => {
+    console.log(currentInfo)
     if (currentInfo?.isocronas || currentInfo?.filter) return; // Si hay isocronas o hay un filtro activo, no hacer nada
     console.log("Zoom level: ", zoom);
     console.log("Bounds: ", bounds);
@@ -178,13 +179,20 @@ function Dashboard() {
         currentInfo.indicators.primary.user,
         currentInfo.indicators.primary.red
       ).then((data) => {
-        console.log("Isocronas: ", data);
+        let resource_name = config.schema.labels.locs[currentInfo.indicators.primary.resource].toLowerCase()
+        let time_name = config.schema.labels.time[currentInfo.indicators.primary.time].toLowerCase()
+        let red_name = config.schema.labels.red[currentInfo.indicators.primary.red].toLowerCase()
+        console.log(currentInfo)
+        let info_text = `Visualizando la Isocrona de ${resource_name} a ${time_name} en la red ${red_name}`;
+        setCurrentInfo({ ...currentInfo, isocronas: true, viewInfo: {
+          text: info_text,
+          onClose: hideIsocronas
+        } });
         setGeoData({ ...geodata, isocronas: data.isocrona, locs: data.locs });
-        setCurrentInfo({ ...currentInfo, isocronas: true });
       });
     } else if (currentInfo.filter) {
       // Si hay un filtro activo, desactivarlo -> SOLUCION TEMPORAL
-      setCurrentInfo({ ...currentInfo, filter: null });
+      setCurrentInfo({ ...currentInfo, filter: null, viewInfo: null });
     }
 
     console.log("Area ID: ", e.target.feature.properties);
@@ -194,9 +202,15 @@ function Dashboard() {
 
   const handleIsocronaClick = (e) => {
     console.log("Isocrona clicked: ", e);
-    setCurrentInfo({ ...currentInfo, isocronas: false });
+    hideIsocronas();
+  };
+
+  const hideIsocronas = () => {
+    setCurrentInfo({ ...currentInfo, viewInfo: null, isocronas: false });
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
+
+
 
   const handleSearch = useCallback((searchTerm) => {
     console.log("Search term: ", searchTerm);
@@ -209,15 +223,21 @@ function Dashboard() {
 
   const handleSearchResultClick = (result) => {
     console.log("Search result clicked: ", result);
+    let viewInfo = {
+      text: `Visualizando ${result.type} ${result.name}`,
+      onClose: () => {
+        setCurrentInfo({ ...currentInfo, viewInfo: null });
+      },
+    }
     if (result.type === "barrio") {
       console.log("Barrio clicked: ", result);
       let id = result.id;
-      setCurrentInfo({ ...currentInfo, filter: { barrio: id } });
+      setCurrentInfo({ ...currentInfo, filter: { barrio: id }, viewInfo: viewInfo });
       setCurrentPolygonsType("B");
-    } else if (result.type === "calle") {
+    } else if (result.type === "calle" || result.type === "parcela") {
       console.log("Calle clicked: ", result);
       let name = result.name;
-      setCurrentInfo({ ...currentInfo, filter: { calle: name } });
+      setCurrentInfo({ ...currentInfo, filter: { calle: name }, viewInfo: viewInfo });
       let parcelas = result.parcelas
       if (parcelas){
         console.log("Parcelas: ", parcelas);
@@ -228,7 +248,7 @@ function Dashboard() {
         setGeoData({ ...geodata, polygons: featureCollection });
         setCurrentPolygonsType("PC");
       }
-    }
+    } 
   };
 
   if (!config) return <div>Loading...</div>;
@@ -243,7 +263,7 @@ function Dashboard() {
       /> */}
       <IndicatorsManager />
       <div className="flex flex-1 relative">
-        <SidebarMenu navbarHeight="0px" className="sidebar-menu" />
+        {/* <SidebarMenu navbarHeight="0px" className="sidebar-menu"/> */}
         <div className="flex-1 overflow-hidden map-container">
           {geodata && currentPolygonsType && (
             <BaseMap
@@ -252,7 +272,6 @@ function Dashboard() {
               onPolygonClick={handlePolygonClick}
               onIsocronaClick={handleIsocronaClick}
               onUserMovedMap={handleUserMovedMap}
-              viewInfo={config.polygons[currentPolygonsType]?.name}
               handleSearch={handleSearch}
               searchResults={searchResults}
               onResultClick={handleSearchResultClick}

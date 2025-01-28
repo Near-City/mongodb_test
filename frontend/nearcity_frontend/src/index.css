@@ -1,6 +1,8 @@
 
 @import "styles/menus/DraggableMenu.css";
 @import "styles/menus/map/TileSelectorMenu.css";
+@import url('https://fonts.googleapis.com/css2?family=Encode+Sans+Expanded:wght@100;200;300;400;500;600;700;800;900&family=Inter&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,3 +21,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+body {
+  @apply font-sans;
+}

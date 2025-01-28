@@ -11,6 +11,7 @@ import {
 } from "@mixins/utils";
 
 import { get_indicators } from "@api/geo";
+import { updateIndicatorInCurrentInfo } from "@mixins/currentInfoUtils";
 
 const ResourceSelector = ({ setIndicator, indicatorName = "primary" }) => {
   const config = useContext(ConfigContext);
@@ -29,23 +30,6 @@ const ResourceSelector = ({ setIndicator, indicatorName = "primary" }) => {
   const [userOptions, setUserOptions] = useState([]);
   const [redOptions, setRedOptions] = useState([]);
 
-  const updateIndicatorInCurrentInfo = (indicatorName, indicatorProperty, value) => {
-    console.log("Updating indicator in current info: ", indicatorName, indicatorProperty, value);
-    setCurrentInfo(prevState => {
-      const indicators = prevState.indicators || {};
-      const indicator = indicators[indicatorName] || {};
-      return {
-        ...prevState,
-        indicators: {
-          ...indicators,
-          [indicatorName]: {
-            ...indicator,
-            [indicatorProperty]: value
-          }
-        }
-      };
-    });
-  };
 
   const getIndicatorPropertyInCurrentInfo = (indicatorName, indicatorProperty) => {
     if (!currentInfo || !currentInfo.indicators) return null;
@@ -98,31 +82,31 @@ const ResourceSelector = ({ setIndicator, indicatorName = "primary" }) => {
     refreshOptionsOnResource(value);
 
     setSelectedResource(value);
-      updateIndicatorInCurrentInfo(indicatorName, "resource", value);
+      updateIndicatorInCurrentInfo(setCurrentInfo,indicatorName, "resource", value);
     };
 
   const handleExtraChange = (value) => {
     console.log("Extra changed: ", value);
     setSelectedExtra(value);
-    updateIndicatorInCurrentInfo(indicatorName, "extra", value);
+    updateIndicatorInCurrentInfo(setCurrentInfo,indicatorName, "extra", value);
   };
 
   const handleTimeChange = (value) => {
     console.log("Time changed: ", value);
     setSelectedTime(value);
-    updateIndicatorInCurrentInfo(indicatorName, "time", value);
+    updateIndicatorInCurrentInfo(setCurrentInfo,indicatorName, "time", value);
   };
 
   const handleUserChange = (value) => {
     console.log("User changed: ", value);
     setSelectedUser(value);
-    updateIndicatorInCurrentInfo(indicatorName, "user", value);
+    updateIndicatorInCurrentInfo(setCurrentInfo,indicatorName, "user", value);
   };
 
   const handleRedChange = (value) => {
     console.log("Red changed: ", value);
     setSelectedRed(value);
-    updateIndicatorInCurrentInfo(indicatorName, "red", value);
+    updateIndicatorInCurrentInfo(setCurrentInfo,indicatorName, "red", value);
   };
 
 
@@ -164,67 +148,6 @@ const ResourceSelector = ({ setIndicator, indicatorName = "primary" }) => {
   }, [extraOptions, timeOptions, userOptions, redOptions]);
 
 
-  // const checkEveryParam = () => {
-  //   if (
-  //     selectedResource &&
-  //     selectedExtra &&
-  //     selectedTime &&
-  //     selectedUser &&
-  //     selectedRed
-  //   )
-  //     return true;
-
-  //   console.log("Missing parameters", {
-  //     selectedResource,
-  //     selectedExtra,
-  //     selectedTime,
-  //     selectedUser,
-  //     selectedRed,
-  //   });
-  //   return false;
-  // };
-
-  // const executeQuery = () => {
-  //   if (!checkEveryParam()) return;
-  //   setIndicator(null);
-  //   console.log("Executing query");
-  //   console.log("Resource: ", selectedResource);
-  //   console.log("Extra: ", selectedExtra);
-  //   console.log("Time: ", selectedTime);
-  //   console.log("User: ", selectedUser);
-  //   console.log("Red: ", selectedRed);
-  //   const area = currentInfo.area ? currentInfo.area : config.defaults.polygon;
-  //   const area_ids = currentInfo.area_ids ? currentInfo.area_ids : [];
-  //   console.log("Area IDS: ", area_ids);
-  //   console.log("Area: ", area);
-  //   get_indicators(
-  //     area,
-  //     selectedResource,
-  //     selectedExtra,
-  //     selectedTime,
-  //     selectedUser,
-  //   selectedRed,
-  //     area_ids
-  //   )
-  //     .then((data) => {
-  //       console.log(
-  //         "NUEVO INDICADOR: ",
-  //         area,
-  //         selectedResource,
-  //         selectedExtra,
-  //         selectedTime,
-  //         selectedUser,
-  //         selectedRed,
-  //         area_ids
-  //       );
-
-  //       setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded"});
-  //       setIndicator(data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching data: ", error);
-  //     });
-  // };
 
   return (
     <div className="w-80 flex flex-col gap-5">

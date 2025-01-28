@@ -16,6 +16,10 @@ export default {
         'map-image': "url('/tilesBg/satelliteBG.png')", // Actualiza la ruta
         'transit-image': "url('/tilesBg/transitBG.png')", // Actualiza la ruta
       },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        serif: ['"Merriweather"', 'serif'],
+      },
     },
   },
   plugins: [],

@@ -3,6 +3,8 @@ import { useMap } from "react-leaflet";
 import L from "leaflet";
 import CurrentInfoContext from "@contexts/currentInfoContext";
 import { find_polygon_with_area_id } from "@mixins/utils";
+
+
 const FilterManager = ({ config, geojsonData }) => {
   const map = useMap();
   const { currentInfo } = useContext(CurrentInfoContext);

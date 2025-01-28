@@ -1,8 +1,6 @@
-// DraggableMenu.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { XMarkIcon, MinusIcon } from '@heroicons/react/24/solid';
 import { CSSTransition } from 'react-transition-group';
-
 
 const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, onClose }) => {
   const [position, setPosition] = useState(initialPosition);
@@ -13,21 +11,10 @@ const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, o
   const [isMinimized, setIsMinimized] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const menuRef = useRef(null);
-  const ballRef = useRef(null);
+  const contentRef = useRef(null);
 
   const handleMouseDown = (e) => {
     const rect = menuRef.current.getBoundingClientRect();
-    setOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-    setIsDragging(true);
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
-  const handleMouseDownBall = (e) => {
-    const rect = ballRef.current.getBoundingClientRect();
     setOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
@@ -56,8 +43,8 @@ const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, o
       e.preventDefault();
     } else if (isResizing) {
       setSize({
-        width: e.clientX - position.x,
-        height: e.clientY - position.y,
+        width: Math.max(e.clientX - position.x, 100),
+        height: Math.max(e.clientY - position.y, 100),
       });
       e.stopPropagation();
       e.preventDefault();
@@ -98,6 +85,23 @@ const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, o
     };
   }, [isDragging, isResizing]);
 
+  useEffect(() => {
+    const adjustSizeToContent = () => {
+      if (contentRef.current) {
+        const contentRect = contentRef.current.getBoundingClientRect();
+        setSize({
+          width: contentRect.width + 16, // Add padding or borders
+          height: contentRect.height + 64, // Include the draggable bar height
+        });
+      }
+    };
+
+    // Wait for the children to render fully
+    const timeoutId = setTimeout(adjustSizeToContent, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [children]);
+
   return (
     <>
       <CSSTransition
@@ -125,7 +129,11 @@ const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, o
               </button>
             </div>
           </div>
-          <div className="p-4 overflow-auto" style={{ height: `calc(${size.height}px - 64px)` }}>
+          <div
+            ref={contentRef}
+            className="p-4 overflow-auto"
+            style={{ height: `calc(${size.height}px - 64px)` }}
+          >
             {children}
           </div>
           <div
@@ -137,10 +145,8 @@ const DraggableMenu = ({ icon, children, initialPosition = { x: 100, y: 100 }, o
 
       {isMinimized && (
         <div
-          ref={ballRef}
           className="absolute bg-blue-500 text-white rounded-full p-2 cursor-pointer"
           style={{ left: position.x, top: position.y, zIndex: 9999 }}
-          onMouseDown={handleMouseDownBall}
           onClick={handleRestore}
         >
           {icon}
