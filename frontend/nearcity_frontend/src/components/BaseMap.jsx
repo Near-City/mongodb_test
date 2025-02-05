@@ -20,7 +20,6 @@ import IndicatorSelector from "./uiMapComponents/uiModels/IndicatorSelector";
 import { FaPersonWalkingWithCane } from "react-icons/fa6";
 import { FaWalking } from "react-icons/fa";
 
-
 const MapBounds = () => {
   const map = useMap();
   useEffect(() => {
@@ -95,7 +94,8 @@ const BaseMap = ({
     carril_bici: false,
   });
 
-
+  const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
+  const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -171,7 +171,7 @@ const BaseMap = ({
       icon: <FaPersonWalkingWithCane className="h-8 w-8" />,
       onClick: () => handleExtraClick("red"),
       id: "red",
-    }
+    },
   ];
 
   return (
@@ -199,12 +199,13 @@ const BaseMap = ({
           geojsonData={areasData?.isocronas}
           onPolygonClick={onIsocronaClick}
         />
-        <FilterManager 
-        config={config}
-        geojsonData={areasData?.polygons}
-        />
+        <FilterManager config={config} geojsonData={areasData?.polygons} />
         <LocsManager config={config} geojsonData={areasData?.locs} />
-        <ExtraManager config={config} geojsonData={areasData?.extra} activeExtra={activeExtraButtons} />
+        <ExtraManager
+          config={config}
+          geojsonData={areasData?.extra}
+          activeExtra={activeExtraButtons}
+        />
         <DynamicDataHandler onUserMovedMap={onUserMovedMap} />
         <MapBounds />
       </MapContainer>
@@ -215,19 +216,51 @@ const BaseMap = ({
         <div className="relative w-full h-full pointer-events-auto">
           <ViewInfoBar />
           <ButtonGroup buttonsInfo={topLeftButtons} />
-          <IndicatorSelector />
-          <SwipeMenu
+          {swipeMenuOpen ? (
+            <>
+              <IndicatorSelector
+                position="left-center"
+                layout="column"
+                indicatorName="primary"
+                startAngle={-40}
+                rotationAngle={90}
+                radius={9}
+                selectedTimeElement={selectedTimeElementPrimary}
+                setSelectedTimeElement={setSelectedTimeElementPrimary}
+              />
+              <IndicatorSelector
+                position="right-center"
+                layout="column"
+                indicatorName="secondary"
+                startAngle={140}
+                rotationAngle={90}
+                radius={9}
+                selectedTimeElement={selectedTimeElementSecondary}
+                setSelectedTimeElement={setSelectedTimeElementSecondary}
+              />
+            </>
+          ) : (
+            <IndicatorSelector position="bottom-center" layout="row" 
+              selectedTimeElement={selectedTimeElementPrimary}
+              setSelectedTimeElement={setSelectedTimeElementPrimary}
+            />
+          )}
+
+          {/* <SwipeMenu
             isMenuOpen={swipeMenuOpen}
             onMenuToggle={handleSwipeMenuToggle}
-          />
+          /> */}
           <TileSelector
             isSatellite={isSatellite}
             onClick={toggleLayer}
             activeExtraButtons={activeExtraButtons}
             setActiveExtraButtons={setActiveExtraButtons}
           />
-          <DebouncedSearchBar onSearch={handleSearch} results={searchResults} onResultClick={onResultClick} />
-
+          <DebouncedSearchBar
+            onSearch={handleSearch}
+            results={searchResults}
+            onResultClick={onResultClick}
+          />
         </div>
       </div>
     </div>
