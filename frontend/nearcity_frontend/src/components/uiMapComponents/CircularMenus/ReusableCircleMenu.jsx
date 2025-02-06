@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, cloneElement } from "react";
 import {
   CircleMenu,
   CircleMenuItem,
@@ -7,7 +7,6 @@ import {
 } from "react-circular-menu";
 
 import '@styles/menus/CircleMenu.css';
-import { TruckIcon } from "@heroicons/react/24/outline";
 
 const ReusableCircleMenu = ({
   menus,
@@ -16,9 +15,19 @@ const ReusableCircleMenu = ({
   itemSize = 3,
   radius = 7,
   menuToggleElement = null,
+  selectedToggleContent = null,
+  setSelectedToggleContent = null,
 }) => {
-  const [currentMenu, setCurrentMenu] = useState(Object.keys(menus)[0]); // Default to the first menu key
+  // Seleccionamos el primer menú por defecto
+  const [currentMenu, setCurrentMenu] = useState(Object.keys(menus)[0]);
+  // Estado para almacenar el contenido que se mostrará en el toggle
   const buttonRef = useRef(null);
+
+  // Si hay un contenido seleccionado, clonamos el toggle element y reemplazamos sus children.
+  const toggleElement = selectedToggleContent
+    ? cloneElement(menuToggleElement, {}, selectedToggleContent)
+    : menuToggleElement;
+
   return (
     <div>
       <CircleMenu
@@ -26,7 +35,7 @@ const ReusableCircleMenu = ({
         rotationAngle={rotationAngle}
         itemSize={itemSize}
         radius={radius}
-        menuToggleElement={menuToggleElement}
+        menuToggleElement={toggleElement}
         rotationAngleInclusive={false}
         className="z-[999]"
       >
@@ -34,11 +43,16 @@ const ReusableCircleMenu = ({
           <CircleMenuItem
             key={index}
             onClick={() => {
-              item.action && item.action(setCurrentMenu); // Pass setCurrentMenu to actions
+              // Actualizamos el contenido del toggle según el ítem seleccionado.
+              if (setSelectedToggleContent)
+                setSelectedToggleContent(item.label || item.icon);
+              // Ejecutamos la acción del ítem (pasándole setCurrentMenu en caso de que se cambie de submenu)
+              if (item.action) {
+                item.action(setCurrentMenu);
+              }
             }}
             tooltip={item.tooltip}
             tooltipPlacement={TooltipPlacement.Right}
-            
           >
             {item.label || item.icon}
           </CircleMenuItem>

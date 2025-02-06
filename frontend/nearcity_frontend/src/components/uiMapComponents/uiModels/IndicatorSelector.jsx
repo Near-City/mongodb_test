@@ -18,90 +18,112 @@ import {
 
 import { FaBuilding, FaWalking } from "react-icons/fa";
 import { IoTime } from "react-icons/io5";
+import { useState, useContext, useEffect } from "react";
 
 import ConfigContext from "@contexts/configContext";
 import CurrentInfoContext from "@contexts/currentInfoContext";
-import { useContext, useEffect } from "react";
 import { updateIndicatorInCurrentInfo } from "@mixins/currentInfoUtils";
 
-export const LocIconButton = ({ onClick }) => {
+export const LocIconButton = ({ onClick, children }) => {
   return (
     <button
       onClick={onClick}
-      className="bg-white p-2 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black h-24 w-24 flex items-center justify-center"
+      className={`p-2 rounded-full shadow-lg transform transition-transform duration-200 
+      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 
+      ${children ? "border-4 border-blue-500" : "border-none"} 
+      bg-white h-24 w-24 flex items-center justify-center`}
     >
-      <FaBuilding className="h-12 w-12" />
+      {children ? children : <FaBuilding className="h-12 w-12" />}
     </button>
   );
 };
 
-export const RedIconButton = ({ onClick }) => {
+export const RedIconButton = ({ onClick, children }) => {
   return (
     <button
       onClick={onClick}
-      className="bg-white p-2 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black h-24 w-24 flex items-center justify-center"
+      className={`p-2 rounded-full shadow-lg transform transition-transform duration-200 
+      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 
+      ${children ? "border-4 border-blue-500" : "border-none"} 
+      bg-white h-24 w-24 flex items-center justify-center`}
     >
-      <FaWalking className="h-12 w-12" />
+      {children ? children : <FaWalking className="h-12 w-12" />}
     </button>
   );
 };
 
-export const TimeIconButton = ({ onClick }) => {
+
+export const TimeIconButton = ({ onClick, children }) => {
   return (
     <button
       onClick={onClick}
-      className="bg-white p-2 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black h-24 w-24 flex items-center justify-center"
+      className={`p-2 rounded-full shadow-lg transform transition-transform duration-200 
+      hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 
+      ${children ? "border-4 border-blue-500" : "border-none"} 
+      bg-white h-24 w-24 flex items-center justify-center`}
     >
-      <IoTime className="h-12 w-12" />
+      {children ? children : <IoTime className="h-12 w-12" />}
     </button>
   );
 };
 
-const IndicatorSelector = () => {
+const IndicatorSelector = ({
+  // Posición en pantalla: "bottom-center" (por defecto), "left-center", "right-center", "bottom"
+  position = "bottom-center",
+  // Distribución de los botones: "row" (por defecto) o "column"
+  layout = "row",
+  indicatorName = "primary",
+  startAngle = 180,
+  rotationAngle = 360,
+  radius = 7,
+  selectedTimeElement = null,
+  setSelectedTimeElement = null,
+  gap = 52,
+}) => {
   const config = useContext(ConfigContext);
-
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
 
   useEffect(() => {
-    if (currentInfo?.indicators?.primary) return;
-    
-    // Set default values
+    if (currentInfo?.indicators?.[indicatorName]) return;
+
+    // Setear valores por defecto
     setCurrentInfo((prevState) => {
       const indicators = prevState.indicators || {};
-      const indicator = indicators.primary || {};
+      const indicator = indicators[indicatorName] || {};
       return {
         ...prevState,
         indicators: {
           ...indicators,
-          ["primary"]: {
+          [indicatorName]: {
             ...indicator,
-            ["resource"]: "loc7",
-            ["extra"]: "total",
-            ["time"]: 5,
-            ["user"]: "normatividad",
-            ["red"]: "caminable",
+            resource: "loc7",
+            extra: "total",
+            time: 5,
+            user: "normatividad",
+            red: "caminable",
           },
         },
       };
     });
-  }, [currentInfo?.indicators?.primary]);
+  }, [currentInfo?.indicators?.[indicatorName]]);
 
+  // Definir los menús de opciones
   const locs = {
     categorias: [
       {
         tooltip: "Salud",
         icon: <HeartIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("saludSubmenu"), // Switch to submenu
+        action: (setMenu) => setMenu("saludSubmenu"), // Cambia a submenu
       },
       {
         tooltip: "Educación",
         icon: <AcademicCapIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("educacionSubmenu"), // Switch to submenu
+        action: (setMenu) => setMenu("educacionSubmenu"),
       },
       {
         tooltip: "Ocio",
         icon: <MusicalNoteIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("ocioSubmenu"), // Switch to submenu
+        action: (setMenu) => setMenu("ocioSubmenu"),
       },
       {
         tooltip: "Otro",
@@ -114,7 +136,7 @@ const IndicatorSelector = () => {
       {
         tooltip: "Back to Main Menu",
         icon: <ArrowLeftIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("categorias"), // Go back to main menu
+        action: (setMenu) => setMenu("categorias"),
       },
       {
         tooltip: "Hospitales",
@@ -136,7 +158,7 @@ const IndicatorSelector = () => {
       {
         tooltip: "Back to Main Menu",
         icon: <ArrowLeftIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("categorias"), // Go back to main menu
+        action: (setMenu) => setMenu("categorias"),
       },
       {
         tooltip: "Universidades",
@@ -158,7 +180,7 @@ const IndicatorSelector = () => {
       {
         tooltip: "Back to Main Menu",
         icon: <ArrowLeftIcon className="h-6 w-6" />,
-        action: (setMenu) => setMenu("categorias"), // Go back to main menu
+        action: (setMenu) => setMenu("categorias"),
       },
       {
         tooltip: "Cine",
@@ -197,53 +219,98 @@ const IndicatorSelector = () => {
     tiempos: [
       {
         tooltip: "5 min",
-        label: "5",
-        action: () => handleTimeChange(5),
+        label: "5 min",
+        action: () => handleTimeChange(5, "5 min"),
       },
       {
         tooltip: "10 min",
-        label: "10",
-        action: () => handleTimeChange(10),
+        label: "10 min",
+        action: () => handleTimeChange(10, "10 min"),
       },
       {
         tooltip: "15 min",
-        label: "15",
-        action: () => handleTimeChange(15),
+        label: "15 min",
+        action: () => handleTimeChange(15, "15 min"),
       },
       {
         tooltip: "20 min",
-        label: "20",
-        action: () => handleTimeChange(20),
+        label: "20 min",
+        action: () => handleTimeChange(20, "20 min"),
       },
       {
         tooltip: "30 min",
-        label: "30",
-        action: () => handleTimeChange(30),
+        label: "30 min",
+        action: () => handleTimeChange(30, "30 min"),
       },
     ],
   };
 
+  // Funciones para actualizar los indicadores
   const handleLocChange = (loc) => {
     console.log("Loc: ", loc);
-    updateIndicatorInCurrentInfo(setCurrentInfo, "primary", "resource", loc);
+    updateIndicatorInCurrentInfo(
+      setCurrentInfo,
+      indicatorName,
+      "resource",
+      loc
+    );
   };
 
-  const handleRedChange = () => {
-    setMenu("redes");
-  };
-
-  const handleTimeChange = (time) => {
+  const handleTimeChange = (time, element) => {
     console.log("Time: ", time);
-    updateIndicatorInCurrentInfo(setCurrentInfo, "primary", "time", time);
+    if (setSelectedTimeElement) setSelectedTimeElement(element);
+    updateIndicatorInCurrentInfo(setCurrentInfo, indicatorName, "time", time);
   };
+
+  // Determinar las clases de posicionamiento según la propiedad "position"
+  let positionClasses = "";
+  switch (position) {
+    case "bottom-center":
+      positionClasses =
+        "absolute bottom-32 left-1/2 transform -translate-x-1/2";
+      break;
+    case "left-center":
+      positionClasses = "absolute left-8 top-1/2 transform -translate-y-1/2";
+      break;
+    case "right-center":
+      positionClasses = "absolute right-8 top-1/2 transform -translate-y-1/2";
+      break;
+    case "bottom":
+      positionClasses = "absolute bottom-0 left-0 right-0";
+      break;
+    default:
+      positionClasses =
+        "absolute bottom-32 left-1/2 transform -translate-x-1/2";
+      break;
+  }
+
+  // Determinar la dirección del flex según la propiedad "layout"
+  const layoutClass = layout === "column" ? "flex-col" : "flex-row";
 
   return (
-    <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 gap-52 flex flex-row z-[999] ">
-      <ReusableCircleMenu menus={locs} menuToggleElement={<LocIconButton />} />
-      <ReusableCircleMenu menus={redes} menuToggleElement={<RedIconButton />} />
+    <div className={`${positionClasses} flex ${layoutClass} gap-52 z-[999]`}>
+      <ReusableCircleMenu
+        menus={locs}
+        menuToggleElement={<LocIconButton />}
+        startAngle={startAngle}
+        radius={radius}
+        rotationAngle={rotationAngle}
+      />
+      <ReusableCircleMenu
+        menus={redes}
+        menuToggleElement={<RedIconButton />}
+        startAngle={startAngle}
+        radius={radius}
+        rotationAngle={rotationAngle}
+      />
       <ReusableCircleMenu
         menus={tiempos}
         menuToggleElement={<TimeIconButton />}
+        startAngle={startAngle}
+        radius={radius}
+        rotationAngle={rotationAngle}
+        selectedToggleContent={selectedTimeElement}
+        setSelectedToggleContent={setSelectedTimeElement}
       />
     </div>
   );
