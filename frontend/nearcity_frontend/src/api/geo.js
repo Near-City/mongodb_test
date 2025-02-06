@@ -67,8 +67,13 @@ export const get_polygons = (type_code, bounds = null) => {
   });
 }
 
-export const get_points = (type_code) => {
-  return api.get(`points/${type_code}/`).then((response) => {
+export const get_locs = (loc_code, bounds) => {
+  let boundsQuery = '';
+  if (bounds){
+    const { north, south, east, west} = bounds;
+    boundsQuery = `?bounds=${north},${south},${east},${west}`;
+  }
+  return api.get(`locs/${loc_code}/${boundsQuery}`).then((response) => {
     return response.data;
   });
 }

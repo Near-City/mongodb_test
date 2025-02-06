@@ -9,8 +9,13 @@ const TutorialExample = ({ run, setRun }) => {
       disableBeacon: true,
     },
     {
-      target: '#resourceSelector',
-      content: 'Entra a este menú para seleccionar una combinación de recursos para mostrar un indicador.',
+      target: '#swipe',
+      content: 'Permite comparar dos capas base del mapa. Puede deslizar la herramienta para ver el contenido de una u otra.',
+      disableBeacon: true,
+    },
+    {
+      target: '#hide-indicators',
+      content: 'Este botón te permite ocultar el selector de indicadores.',
       disableBeacon: true,
     },
     {
@@ -19,10 +24,10 @@ const TutorialExample = ({ run, setRun }) => {
       disableBeacon: true,
     },
     {
-      target: '#swipe',
-      content: 'Permite comparar dos capas base del mapa. Puede deslizar la herramienta para ver el contenido de una u otra.',
+      target: '#indicator-selectors',
+      content: 'En este panel podrás seleccionar el indicador que desees visualizar.',
       disableBeacon: true,
-    },
+    }
   ];
 
   return (

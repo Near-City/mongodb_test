@@ -1,6 +1,6 @@
 from django.urls import path
 # from . import views
-from .views import ConfigView, PolygonsView, PointsView, IndicatorsView, IsocronasView ,GetCSRFTokenView, CarrilBiciView, SearchView
+from .views import ConfigView, PolygonsView, IndicatorsView, IsocronasView ,GetCSRFTokenView, CarrilBiciView, SearchView, LocsView
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 
@@ -17,7 +17,7 @@ app_name = 'accesibilidad_valencia'
 urlpatterns = [
     path('api/config/', ConfigView.as_view(), name='config'),
     path('api/polygons/<str:type_code>/', PolygonsView.as_view(), name='polygons'),
-    path('api/points/<str:type_code>/', PointsView.as_view(), name='points'),
+    path('api/locs/<str:resource_code>/', LocsView.as_view(), name='locs'),
     path('api/indicators/', IndicatorsView.as_view(), name='indicators'),
     path('api/isocronas/', IsocronasView.as_view(), name='isocronas'),
     path('api/csrf/', GetCSRFTokenView.as_view(), name='csrf'),

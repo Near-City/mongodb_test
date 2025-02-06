@@ -47,7 +47,7 @@ const LocsManager = ({ config, geojsonData, onPolygonClick }) => {
     if (!geojsonData) {
       return;
     }
-
+    console.log("rendering locs!", geojsonData);
     // Limpiar el layer group actual si existe
     if (layerGroup) {
       layerGroup.clearLayers();

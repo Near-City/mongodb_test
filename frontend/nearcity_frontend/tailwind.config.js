@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         primary: '#2B4E89',
-        secondary: '#97B3E3',
+        secondary: '#111804',
         danger: '#e3342f',
       },
       backgroundImage: {
@@ -18,7 +18,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        serif: ['"Merriweather"', 'serif'],
+        serif: ['Merriweather', 'serif'],
       },
     },
   },

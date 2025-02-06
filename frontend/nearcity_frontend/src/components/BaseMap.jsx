@@ -16,9 +16,9 @@ import DebouncedSearchBar from "./uiMapComponents/SearchBars/DebouncedSearchBar"
 import FilterManager from "./FilterManager";
 import ConfigContext from "../contexts/configContext";
 import IndicatorSelector from "./uiMapComponents/uiModels/IndicatorSelector";
-
-import { FaPersonWalkingWithCane } from "react-icons/fa6";
-import { FaWalking } from "react-icons/fa";
+import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
+import { FaQuestion } from "react-icons/fa";
+import { BiHide, BiShow } from "react-icons/bi";
 
 const MapBounds = () => {
   const map = useMap();
@@ -58,19 +58,6 @@ const DynamicDataHandler = ({ onUserMovedMap }) => {
     };
   }, [map, onUserMovedMap]);
 
-  // useEffect(() => {
-  //   const handleZoomEnd = async () => {
-  //     console.log("Map zoomed");
-  //     const zoom = map.getZoom();
-  //     onZoomChanged(zoom);
-  //   };
-
-  //   map.on("zoomend", handleZoomEnd);
-
-  //   return () => {
-  //     map.off("zoomend", handleZoomEnd);
-  //   };
-  // }, [map]);
   return null;
 };
 
@@ -93,9 +80,12 @@ const BaseMap = ({
     transito: false,
     carril_bici: false,
   });
-
-  const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
-  const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
+  const [tutorial, setTutorial] = useState(false);
+  const [hideIndicatorSelectors, setHideIndicatorSelectors] = useState(false);
+  const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] =
+    useState(null);
+  const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] =
+    useState(null);
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -153,26 +143,26 @@ const BaseMap = ({
     }
   };
 
-  const handleExtraClick = (e) => {
-    console.log("Extra clicked: ", e);
-  };
-
-  const redIcon = () => {
-    return FaPersonWalkingWithCane;
-  };
-
   const topLeftButtons = [
+    {
+      icon: <FaQuestion className="text-white" />,
+      onClick: () => setTutorial(true),
+      id: "tutorial",
+    },
     {
       icon: swipeIcon,
       onClick: () => handleSwipeMenuToggle(),
       id: "swipe",
     },
     {
-      icon: <FaPersonWalkingWithCane className="h-8 w-8" />,
-      onClick: () => handleExtraClick("red"),
-      id: "red",
+      icon: hideIndicatorSelectors ? (
+        <BiShow className="text-white" />
+      ) : (
+        <BiHide className="text-white" />
+      ),
+      onClick: () => setHideIndicatorSelectors(!hideIndicatorSelectors),
+      id: "hide-indicators",
     },
-    
   ];
 
   return (
@@ -183,11 +173,7 @@ const BaseMap = ({
         style={{ height: "100%", width: "100%", position: "relative" }}
         ref={setMap}
       >
-        {/* <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        /> */}
-
+        <TutorialExample run={tutorial} setRun={setTutorial} />
         <GeoJSON data={areasData?.polygons} style={{ color: "white" }} />
         <PolygonManager
           config={config}
@@ -217,37 +203,44 @@ const BaseMap = ({
         <div className="relative w-full h-full pointer-events-auto">
           <ViewInfoBar />
           <ButtonGroup buttonsInfo={topLeftButtons} />
-          {swipeMenuOpen ? (
-            <>
+          <div className={` 
+          transition-all duration-100 
+          ${hideIndicatorSelectors ? 'opacity-0  pointer-events-none':'opacity-100 '}
+        `}
+ >
+            {swipeMenuOpen ? (
+              <>
+                <IndicatorSelector
+                  position="left-center"
+                  layout="column"
+                  indicatorName="primary"
+                  startAngle={-40}
+                  rotationAngle={90}
+                  radius={9}
+                  selectedTimeElement={selectedTimeElementPrimary}
+                  setSelectedTimeElement={setSelectedTimeElementPrimary}
+                />
+                <IndicatorSelector
+                  position="right-center"
+                  layout="column"
+                  indicatorName="secondary"
+                  startAngle={140}
+                  rotationAngle={90}
+                  radius={9}
+                  selectedTimeElement={selectedTimeElementSecondary}
+                  setSelectedTimeElement={setSelectedTimeElementSecondary}
+                />
+              </>
+            ) : (
               <IndicatorSelector
-                position="left-center"
-                layout="column"
-                indicatorName="primary"
-                startAngle={-40}
-                rotationAngle={90}
-                radius={9}
+                position="bottom-center"
+                layout="row"
                 selectedTimeElement={selectedTimeElementPrimary}
                 setSelectedTimeElement={setSelectedTimeElementPrimary}
               />
-              <IndicatorSelector
-                position="right-center"
-                layout="column"
-                indicatorName="secondary"
-                startAngle={140}
-                rotationAngle={90}
-                radius={9}
-                selectedTimeElement={selectedTimeElementSecondary}
-                setSelectedTimeElement={setSelectedTimeElementSecondary}
-              />
-            </>
-          ) : (
-            <IndicatorSelector position="bottom-center" layout="row" 
-              selectedTimeElement={selectedTimeElementPrimary}
-              setSelectedTimeElement={setSelectedTimeElementPrimary}
-            />
-          )}
+            )}
+          </div>
 
-          
           <TileSelector
             isSatellite={isSatellite}
             onClick={toggleLayer}

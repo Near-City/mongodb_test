@@ -101,7 +101,7 @@ def get_isocronas(area_id, time, user, red):
     # Ajustar el query para buscar dentro de "properties"
     query = {
         'properties.area_id': area_id,
-        'properties.time': time,
+        'properties.time': str(time),
         'properties.user': user,
         'properties.red': red
     }
@@ -110,17 +110,17 @@ def get_isocronas(area_id, time, user, red):
     
     return {
         "isocrona": result['geometry'],
-        "locs": locs_in_isocrona(result['geometry'], 'loc7')
+        "locs": locs_inside_geometry(result['geometry'], 'loc7') # CAMBIAR ESTO AL TIPO DE LOC QUE SEA
         }
 
-def locs_in_isocrona(isocrona_geometry, collection_name):
+def locs_inside_geometry(geometry, collection_name):
     global db
     collection = db[collection_name]
     
     query = {
         'geometry': {
             '$geoWithin': {
-                '$geometry': isocrona_geometry
+                '$geometry': geometry
             }
         }
     }

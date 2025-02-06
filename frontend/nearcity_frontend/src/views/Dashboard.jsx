@@ -13,6 +13,7 @@ import {
   get_isocronas,
   get_carril_bici,
   get_search,
+  get_locs
 } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
@@ -134,6 +135,13 @@ function Dashboard() {
             resolve();
           })
           .catch(reject);
+          // para renderizar los locs (no acabado)
+          // if (currentInfo?.indicators?.primary?.resource){
+          //   get_locs(currentInfo?.indicators?.primary?.resource, bounds).then((data) => {
+          //     console.log("Locs loaded: ", data);
+          //     setGeoData({ ...geodata, locs: data });
+          //   });
+          // }
       }
     });
   };

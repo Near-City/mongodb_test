@@ -292,6 +292,7 @@ const IndicatorSelector = ({
       className={`${positionClasses} flex ${layoutClass} ${
         layout === "row" ? "gap-52" : "gap-32"
       } z-[999]`}
+      id="indicator-selectors"
     >
       <ReusableCircleMenu
         menus={locs}

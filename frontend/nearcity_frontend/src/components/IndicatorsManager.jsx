@@ -96,7 +96,17 @@ const IndicatorsManager = () => {
         setCurrentIndicator(data);
         setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded" });
       }
+    
     });
+
+    if (currentInfo.indicators.secondary) {
+      requestIndicators(currentInfo.indicators.secondary).then((data) => {
+        if (data) {
+          setSecondIndicator(data);
+          setCurrentInfo({ ...currentInfo, indicatorStatus: "loaded" });
+        }
+      });
+    }
   }, [currentInfo.area, currentInfo.area_ids]);
 
   return null;
