@@ -67,19 +67,7 @@ export const TimeIconButton = ({ onClick, children }) => {
   );
 };
 
-const IndicatorSelector = ({
-  // Posición en pantalla: "bottom-center" (por defecto), "left-center", "right-center", "bottom"
-  position = "bottom-center",
-  // Distribución de los botones: "row" (por defecto) o "column"
-  layout = "row",
-  indicatorName = "primary",
-  startAngle = 180,
-  rotationAngle = 360,
-  radius = 7,
-  selectedTimeElement = null,
-  setSelectedTimeElement = null,
-  gap = 52,
-}) => {
+const IndicatorSelector = () => {
   const config = useContext(ConfigContext);
   const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
 
@@ -288,21 +276,9 @@ const IndicatorSelector = ({
   const layoutClass = layout === "column" ? "flex-col" : "flex-row";
 
   return (
-    <div className={`${positionClasses} flex ${layoutClass} gap-52 z-[999]`}>
-      <ReusableCircleMenu
-        menus={locs}
-        menuToggleElement={<LocIconButton />}
-        startAngle={startAngle}
-        radius={radius}
-        rotationAngle={rotationAngle}
-      />
-      <ReusableCircleMenu
-        menus={redes}
-        menuToggleElement={<RedIconButton />}
-        startAngle={startAngle}
-        radius={radius}
-        rotationAngle={rotationAngle}
-      />
+    <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 gap-52 flex flex-row z-[999] ">
+      <ReusableCircleMenu menus={locs} menuToggleElement={<LocIconButton />} />
+      <ReusableCircleMenu menus={redes} menuToggleElement={<RedIconButton />} />
       <ReusableCircleMenu
         menus={tiempos}
         menuToggleElement={<TimeIconButton />}

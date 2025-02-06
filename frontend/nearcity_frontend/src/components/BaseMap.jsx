@@ -96,6 +96,8 @@ const BaseMap = ({
 
   const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
   const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
+  const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
+  const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -172,6 +174,7 @@ const BaseMap = ({
       onClick: () => handleExtraClick("red"),
       id: "red",
     },
+    },
   ];
 
   return (
@@ -200,7 +203,13 @@ const BaseMap = ({
           onPolygonClick={onIsocronaClick}
         />
         <FilterManager config={config} geojsonData={areasData?.polygons} />
+        <FilterManager config={config} geojsonData={areasData?.polygons} />
         <LocsManager config={config} geojsonData={areasData?.locs} />
+        <ExtraManager
+          config={config}
+          geojsonData={areasData?.extra}
+          activeExtra={activeExtraButtons}
+        />
         <ExtraManager
           config={config}
           geojsonData={areasData?.extra}
@@ -216,6 +225,37 @@ const BaseMap = ({
         <div className="relative w-full h-full pointer-events-auto">
           <ViewInfoBar />
           <ButtonGroup buttonsInfo={topLeftButtons} />
+          {swipeMenuOpen ? (
+            <>
+              <IndicatorSelector
+                position="left-center"
+                layout="column"
+                indicatorName="primary"
+                startAngle={-40}
+                rotationAngle={90}
+                radius={9}
+                selectedTimeElement={selectedTimeElementPrimary}
+                setSelectedTimeElement={setSelectedTimeElementPrimary}
+              />
+              <IndicatorSelector
+                position="right-center"
+                layout="column"
+                indicatorName="secondary"
+                startAngle={140}
+                rotationAngle={90}
+                radius={9}
+                selectedTimeElement={selectedTimeElementSecondary}
+                setSelectedTimeElement={setSelectedTimeElementSecondary}
+              />
+            </>
+          ) : (
+            <IndicatorSelector position="bottom-center" layout="row" 
+              selectedTimeElement={selectedTimeElementPrimary}
+              setSelectedTimeElement={setSelectedTimeElementPrimary}
+            />
+          )}
+
+          {/* <SwipeMenu
           {swipeMenuOpen ? (
             <>
               <IndicatorSelector
@@ -252,11 +292,17 @@ const BaseMap = ({
             isMenuOpen={swipeMenuOpen}
             onMenuToggle={handleSwipeMenuToggle}
           /> */}
+          /> */}
           <TileSelector
             isSatellite={isSatellite}
             onClick={toggleLayer}
             activeExtraButtons={activeExtraButtons}
             setActiveExtraButtons={setActiveExtraButtons}
+          />
+          <DebouncedSearchBar
+            onSearch={handleSearch}
+            results={searchResults}
+            onResultClick={onResultClick}
           />
           <DebouncedSearchBar
             onSearch={handleSearch}
