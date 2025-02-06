@@ -96,8 +96,6 @@ const BaseMap = ({
 
   const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
   const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
-  const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] = useState(null);
-  const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] = useState(null);
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
