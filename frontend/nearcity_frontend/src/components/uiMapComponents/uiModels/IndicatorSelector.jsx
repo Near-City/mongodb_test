@@ -288,7 +288,11 @@ const IndicatorSelector = ({
   const layoutClass = layout === "column" ? "flex-col" : "flex-row";
 
   return (
-    <div className={`${positionClasses} flex ${layoutClass} gap-52 z-[999]`}>
+    <div
+      className={`${positionClasses} flex ${layoutClass} ${
+        layout === "row" ? "gap-52" : "gap-32"
+      } z-[999]`}
+    >
       <ReusableCircleMenu
         menus={locs}
         menuToggleElement={<LocIconButton />}
