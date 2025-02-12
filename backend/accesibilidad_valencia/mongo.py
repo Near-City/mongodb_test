@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from unidecode import unidecode
 from Levenshtein import distance
-from .utils import format_resultados_barrios, format_resultados_parcelas, normalizar_y_extraer_numero, serialize_object_ids
+from .utils import format_resultados_barrios, format_resultados_parcelas, normalizar_y_extraer_numero, serialize_object_ids, prettify_street_name
 
 db = None
 STOPWORDS = [
@@ -27,6 +27,29 @@ STOPWORDS = [
     "urbanizacion", "ur",
     "de", "del", "la", "los", "las", "el"  # Palabras comunes de enlace
 ]
+
+matching = {
+    "av": "avenida",
+    "br": "barrio",
+    "cl": "calle",
+    "cm": "camino",
+    "cr": "carretera",
+    "ds": "diseminado",
+    "ed": "edificio",
+    "en": "entrada",
+    "gr": "grupo",
+    "gv": "gran via",
+    "lg": "lugar",
+    "pd": "paraje",
+    "pj": "pasaje",
+    "pl": "plaza",
+    "pz": "plaza",
+    "proc": "procedimiento",
+    "ps": "paseo",
+    "sd": "subida",
+    "tr": "travesia",
+    "ur": "urbanizacion"
+}
 
 def get_mongo_connection():
     global db
@@ -154,6 +177,7 @@ def buscar_parcela(parcelas_collection, calle, numero=None):
         if resultados: # Ha encontrado una parcela con ese número
             # Cogemos calle de referencia
             calle = resultados[0].get("properties", {}).get("direccion")
+            calle_pretty = prettify_street_name(calle)
             return [format_resultados_parcelas("parcela", calle, list(resultados))]
     
     # Si no se proporciona un número o no hay resultados, buscar todas las parcelas en la calle
@@ -166,7 +190,9 @@ def buscar_parcela(parcelas_collection, calle, numero=None):
         res = []
         for calle in uniq_calles:
             parcelas_calle = [parcela for parcela in resultados if parcela.get("properties", {}).get("calle") == calle] # Para cada calle sacamos sus parcelas
-            res.append(format_resultados_parcelas("calle", calle, parcelas_calle))
+            # poner el nombre de la calle de algo como PZ PATRAIX a Patraix
+            calle_pretty = prettify_street_name(calle)
+            res.append(format_resultados_parcelas("calle", calle_pretty, parcelas_calle))
         return res
 
     return []

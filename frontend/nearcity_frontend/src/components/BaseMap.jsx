@@ -17,7 +17,7 @@ import FilterManager from "./FilterManager";
 import ConfigContext from "../contexts/configContext";
 import IndicatorSelector from "./uiMapComponents/uiModels/IndicatorSelector";
 import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
-import { FaQuestion } from "react-icons/fa";
+import { FaQuestion, FaBuilding } from "react-icons/fa";
 import { BiHide, BiShow } from "react-icons/bi";
 
 const MapBounds = () => {
@@ -70,6 +70,7 @@ const BaseMap = ({
   handleSearch,
   searchResults,
   onResultClick,
+  showLocs, setShowLocs
 }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [map, setMap] = useState(null);
@@ -163,6 +164,15 @@ const BaseMap = ({
       onClick: () => setHideIndicatorSelectors(!hideIndicatorSelectors),
       id: "hide-indicators",
     },
+    {
+      icon: showLocs ? (
+        <FaBuilding className="text-white" />
+      ) : (
+        <FaBuilding className="text-gray-500" />
+      ),
+      onClick: () => setShowLocs(!showLocs),
+      id: "show-locs",
+    },
   ];
 
   return (
@@ -187,7 +197,7 @@ const BaseMap = ({
           onPolygonClick={onIsocronaClick}
         />
         <FilterManager config={config} geojsonData={areasData?.polygons} />
-        <LocsManager config={config} geojsonData={areasData?.locs} />
+        {showLocs && <LocsManager config={config} geojsonData={areasData?.locs} />}
         <ExtraManager
           config={config}
           geojsonData={areasData?.extra}

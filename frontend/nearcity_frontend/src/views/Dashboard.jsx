@@ -13,7 +13,7 @@ import {
   get_isocronas,
   get_carril_bici,
   get_search,
-  get_locs
+  get_locs,
 } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
@@ -35,7 +35,7 @@ function Dashboard() {
 
   const [geodata, setGeoData] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
-  const [openDrawer, setOpenDrawer] = useState(true);
+  const [showLocs, setShowLocs] = useState(false);
 
   useEffect(() => {
     getCsrfToken().then((token) => {
@@ -91,7 +91,7 @@ function Dashboard() {
   }, [geodata]);
 
   const handleUserMovedMap = (zoom, bounds) => {
-    console.log(currentInfo)
+    console.log(currentInfo);
     if (currentInfo?.isocronas || currentInfo?.filter) return; // Si hay isocronas o hay un filtro activo, no hacer nada
     console.log("Zoom level: ", zoom);
     console.log("Bounds: ", bounds);
@@ -110,6 +110,20 @@ function Dashboard() {
         });
       }
     });
+
+    // Para renderizar los locs
+    if (showLocs && currentInfo?.indicators?.primary?.resource) {
+      get_locs(currentInfo.indicators.primary.resource, bounds).then(
+        (data) => {
+          console.log("Locs loaded: ", data);
+          // Actualizamos 'locs' usando el estado previo
+          setGeoData((prevGeoData) => ({
+            ...prevGeoData,
+            locs: data,
+          }));
+        }
+      );
+    }
   };
 
   const refreshPolygons = (type, bounds = null) => {
@@ -128,20 +142,24 @@ function Dashboard() {
         get_polygons(type, bounds)
           .then((data) => {
             const polygonsData = data;
-            setGeoData({ ...geodata, polygons: polygonsData });
-            let area_ids = getAreaIdsFromData(polygonsData.features);
-            setCurrentInfo({ ...currentInfo, area_ids: area_ids });
+            // Actualizamos 'polygons' usando el estado previo
+            setGeoData((prevGeoData) => ({
+              ...prevGeoData,
+              polygons: polygonsData,
+            }));
+
+            const area_ids = getAreaIdsFromData(polygonsData.features);
+            setCurrentInfo((prevCurrentInfo) => ({
+              ...prevCurrentInfo,
+              area_ids: area_ids,
+            }));
+
             console.log("Polygons loaded: ", type);
             resolve();
           })
           .catch(reject);
-          // para renderizar los locs (no acabado)
-          // if (currentInfo?.indicators?.primary?.resource){
-          //   get_locs(currentInfo?.indicators?.primary?.resource, bounds).then((data) => {
-          //     console.log("Locs loaded: ", data);
-          //     setGeoData({ ...geodata, locs: data });
-          //   });
-          // }
+
+        
       }
     });
   };
@@ -187,15 +205,28 @@ function Dashboard() {
         currentInfo.indicators.primary.user,
         currentInfo.indicators.primary.red
       ).then((data) => {
-        let resource_name = config.schema.labels.locs[currentInfo.indicators.primary.resource].toLowerCase()
-        let time_name = config.schema.labels.time[currentInfo.indicators.primary.time].toLowerCase()
-        let red_name = config.schema.labels.red[currentInfo.indicators.primary.red].toLowerCase()
-        console.log(currentInfo)
+        let resource_name =
+          config.schema.labels.locs[
+            currentInfo.indicators.primary.resource
+          ].toLowerCase();
+        let time_name =
+          config.schema.labels.time[
+            currentInfo.indicators.primary.time
+          ].toLowerCase();
+        let red_name =
+          config.schema.labels.red[
+            currentInfo.indicators.primary.red
+          ].toLowerCase();
+        console.log(currentInfo);
         let info_text = `Visualizando la Isocrona de ${resource_name} a ${time_name} en la red ${red_name}`;
-        setCurrentInfo({ ...currentInfo, isocronas: true, viewInfo: {
-          text: info_text,
-          onClose: hideIsocronas
-        } });
+        setCurrentInfo({
+          ...currentInfo,
+          isocronas: true,
+          viewInfo: {
+            text: info_text,
+            onClose: hideIsocronas,
+          },
+        });
         setGeoData({ ...geodata, isocronas: data.isocrona, locs: data.locs });
       });
     } else if (currentInfo.filter) {
@@ -218,8 +249,6 @@ function Dashboard() {
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
-
-
   const handleSearch = useCallback((searchTerm) => {
     console.log("Search term: ", searchTerm);
     get_search(searchTerm).then((data) => {
@@ -236,27 +265,35 @@ function Dashboard() {
       onClose: () => {
         setCurrentInfo({ ...currentInfo, viewInfo: null });
       },
-    }
+    };
     if (result.type === "barrio") {
       console.log("Barrio clicked: ", result);
       let id = result.id;
-      setCurrentInfo({ ...currentInfo, filter: { barrio: id }, viewInfo: viewInfo });
+      setCurrentInfo({
+        ...currentInfo,
+        filter: { barrio: id },
+        viewInfo: viewInfo,
+      });
       setCurrentPolygonsType("B");
     } else if (result.type === "calle" || result.type === "parcela") {
       console.log("Calle clicked: ", result);
       let name = result.name;
-      setCurrentInfo({ ...currentInfo, filter: { calle: name }, viewInfo: viewInfo });
-      let parcelas = result.parcelas
-      if (parcelas){
+      setCurrentInfo({
+        ...currentInfo,
+        filter: { calle: name },
+        viewInfo: viewInfo,
+      });
+      let parcelas = result.parcelas;
+      if (parcelas) {
         console.log("Parcelas: ", parcelas);
         let featureCollection = {
           type: "FeatureCollection",
-          features: parcelas
-        }
+          features: parcelas,
+        };
         setGeoData({ ...geodata, polygons: featureCollection });
         setCurrentPolygonsType("PC");
       }
-    } 
+    }
   };
 
   if (!config) return <div>Loading...</div>;
@@ -283,6 +320,8 @@ function Dashboard() {
               handleSearch={handleSearch}
               searchResults={searchResults}
               onResultClick={handleSearchResultClick}
+              showLocs={showLocs}
+              setShowLocs={setShowLocs}
             />
           )}
         </div>

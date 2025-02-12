@@ -1,4 +1,5 @@
 from unidecode import unidecode
+from collections import defaultdict
 
 def build_geojson_from_features(features):
     return {
@@ -52,3 +53,9 @@ def serialize_object_id(obj):
 
 def serialize_object_ids(objs):
     return [serialize_object_id(obj) for obj in objs]
+
+
+def prettify_street_name(name, matching=defaultdict(lambda: "")):
+    splits = name.split()
+    index = 0 if len(splits) == 1 else 1
+    return " ".join([part.capitalize() for part in name.split()[index:]])
