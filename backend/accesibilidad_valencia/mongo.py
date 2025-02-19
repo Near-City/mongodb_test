@@ -28,28 +28,6 @@ STOPWORDS = [
     "de", "del", "la", "los", "las", "el"  # Palabras comunes de enlace
 ]
 
-matching = {
-    "av": "avenida",
-    "br": "barrio",
-    "cl": "calle",
-    "cm": "camino",
-    "cr": "carretera",
-    "ds": "diseminado",
-    "ed": "edificio",
-    "en": "entrada",
-    "gr": "grupo",
-    "gv": "gran via",
-    "lg": "lugar",
-    "pd": "paraje",
-    "pj": "pasaje",
-    "pl": "plaza",
-    "pz": "plaza",
-    "proc": "procedimiento",
-    "ps": "paseo",
-    "sd": "subida",
-    "tr": "travesia",
-    "ur": "urbanizacion"
-}
 
 def get_mongo_connection():
     global db
@@ -156,12 +134,13 @@ def get_carril_bici():
     global db
     collection_name = "bici"
     collection = db[collection_name]
-    
     data = list(collection.find({}, {'_id': 0}))
     
     return data
 
 def buscar_parcela(parcelas_collection, calle, numero=None):
+    if calle is None or calle == "":
+        return []
     calle_normalizada, numero = normalizar_y_extraer_numero(calle, stopwords=STOPWORDS)
     resultados = []
 
@@ -174,25 +153,39 @@ def buscar_parcela(parcelas_collection, calle, numero=None):
             "properties.numero": numero
         })
         resultados = serialize_object_ids(resultados)
-        if resultados: # Ha encontrado una parcela con ese número
+        if resultados:
             # Cogemos calle de referencia
             calle = resultados[0].get("properties", {}).get("direccion")
             calle_pretty = prettify_street_name(calle)
-            return [format_resultados_parcelas("parcela", calle, list(resultados))]
+            return [format_resultados_parcelas("parcela", calle_pretty, list(resultados))]
     
     # Si no se proporciona un número o no hay resultados, buscar todas las parcelas en la calle
     resultados = parcelas_collection.find({
         "properties.calle_normalizada": regex_calle
     })
     resultados = serialize_object_ids(resultados)
-    if resultados:  # Pueden haber varias calles aquí
-        uniq_calles = {parcela.get("properties", {}).get("calle") for parcela in resultados}
+    if resultados:
+        # Agrupar por calles y calcular distancia Levenshtein
+        calles_dict = {}
+        for parcela in resultados:
+            calle = parcela.get("properties", {}).get("calle")
+            if not calle:
+                continue
+            if calle not in calles_dict:
+                dist = distance(calle_normalizada, unidecode(calle.lower()))
+                calles_dict[calle] = {
+                    'parcelas': [],
+                    'distancia': dist
+                }
+            calles_dict[calle]['parcelas'].append(parcela)
+        
+        # Ordenar por distancia Levenshtein
+        calles_ordenadas = sorted(calles_dict.items(), key=lambda x: x[1]['distancia'])
+        
         res = []
-        for calle in uniq_calles:
-            parcelas_calle = [parcela for parcela in resultados if parcela.get("properties", {}).get("calle") == calle] # Para cada calle sacamos sus parcelas
-            # poner el nombre de la calle de algo como PZ PATRAIX a Patraix
+        for calle, info in calles_ordenadas:
             calle_pretty = prettify_street_name(calle)
-            res.append(format_resultados_parcelas("calle", calle_pretty, parcelas_calle))
+            res.append(format_resultados_parcelas("calle", calle_pretty, info['parcelas']))
         return res
 
     return []

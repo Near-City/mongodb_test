@@ -42,7 +42,7 @@ function SearchBar({ onSearch, results, onResultClick }) {
         <input
           type="text"
           placeholder="Buscar barrios, calles o parcelas..."
-          className="flex-1 p-3 pl-4 pr-4 text-gray-700 placeholder-gray-400 focus:outline-none rounded-full"
+          className="flex-1 p-3 pl-4 pr-4 text-gray-700 placeholder-gray-400 focus:outline-none rounded-full [color-scheme:light]" // [color-scheme:light] es una clase de Tailwind CSS que cambia el color del placeholder para que los navegadores NO lo muestren en modo oscuro
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}

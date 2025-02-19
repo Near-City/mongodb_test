@@ -18,7 +18,7 @@ def format_resultados_barrios(id, nombre):
     return {
         "type": "barrio",
         "id": id,
-        "name": nombre
+        "name": nombre.capitalize()
     }
 
 import re
@@ -55,7 +55,36 @@ def serialize_object_ids(objs):
     return [serialize_object_id(obj) for obj in objs]
 
 
-def prettify_street_name(name, matching=defaultdict(lambda: "")):
+matching = {
+    "av del": "avenida",
+    "br": "barrio",
+    "cl": "calle",
+    "cm": "camino",
+    "cr": "carretera",
+    "ds": "diseminado",
+    "ed": "edificio",
+    "en": "entrada",
+    "gr": "grupo",
+    "gv": "gran via",
+    "lg": "lugar",
+    "pd": "paraje",
+    "pj": "pasaje",
+    "pl": "plaza",
+    "pz": "plaza",
+    "proc": "procedimiento",
+    "ps": "paseo",
+    "sd": "subida",
+    "tr": "travesia",
+    "ur": "urbanizacion"
+}
+
+
+def prettify_street_name(name):
     splits = name.split()
-    index = 0 if len(splits) == 1 else 1
-    return " ".join([part.capitalize() for part in name.split()[index:]])
+    if len(splits) > 1:
+        prefix = splits[0].lower().strip()
+        if prefix in matching:
+            splits[0] = matching[prefix]
+            print(matching[prefix])
+
+    return " ".join([part.capitalize() for part in splits])
