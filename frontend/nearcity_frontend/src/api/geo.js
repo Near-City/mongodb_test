@@ -147,3 +147,9 @@ export const get_search = async (search) => {
   });
 
 }
+
+export const get_plots_by_area_id = async (area_code, area_id) => {
+  return api.get(`filter-plots/${area_code}/${area_id}/`).then((response) => {
+    return response.data;
+  });
+}

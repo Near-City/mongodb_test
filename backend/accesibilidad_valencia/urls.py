@@ -1,6 +1,6 @@
 from django.urls import path
 # from . import views
-from .views import ConfigView, PolygonsView, IndicatorsView, IsocronasView ,GetCSRFTokenView, CarrilBiciView, SearchView, LocsView
+from .views import ConfigView, PolygonsView, IndicatorsView, IsocronasView ,GetCSRFTokenView, CarrilBiciView, SearchView, LocsView, FilterPlotsView
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import TemplateView
 
@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/csrf/', GetCSRFTokenView.as_view(), name='csrf'),
     path('api/carrilbici/', CarrilBiciView.as_view(), name='carrilbici'),
     path('api/search/', SearchView.as_view(), name='search'),
+    path('api/filter-plots/<str:area_code>/<str:area_id>/', FilterPlotsView.as_view(), name='filterplots'),
 
 ]

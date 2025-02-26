@@ -222,3 +222,27 @@ def search(termino):
     
     return resultados
 
+
+def get_parcelas_by_barrio(barrio_id):
+    global db
+    collection_name = "parcelas"
+    collection = db[collection_name]
+    query = {
+        "properties.C_DISTBAR": barrio_id
+    }
+    
+    result = collection.find(query)
+    
+    return serialize_object_ids(result)
+
+def get_parcelas_by_distrito(distrito_id):
+    global db
+    collection_name = "parcelas"
+    collection = db[collection_name]
+    query = {
+        "properties.C_DIST": distrito_id
+    }
+    
+    result = collection.find(query)
+    
+    return serialize_object_ids(result)

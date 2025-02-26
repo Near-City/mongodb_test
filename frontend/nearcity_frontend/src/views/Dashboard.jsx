@@ -14,6 +14,7 @@ import {
   get_carril_bici,
   get_search,
   get_locs,
+  get_plots_by_area_id,
 } from "../api/geo.js";
 import ConfigContext from "../contexts/configContext.jsx";
 import CurrentInfoContext from "../contexts/currentInfoContext.jsx";
@@ -101,7 +102,10 @@ function Dashboard() {
       if (inRange(zoom, polygon.zoomRange)) {
         if (currentPolygonsType === key && !polygon.lazyLoading) return;
         if (currentIndicator) {
-          setCurrentInfo({ ...currentInfo, indicatorStatus: "loading" });
+          setCurrentInfo((prevState) => ({
+            ...prevState,
+            indicatorStatus: "loading",
+          }));
         }
         refreshPolygons(key, bounds).then(() => {
           setCurrentPolygonsType(key);
@@ -113,16 +117,14 @@ function Dashboard() {
 
     // Para renderizar los locs
     if (showLocs && currentInfo?.indicators?.primary?.resource) {
-      get_locs(currentInfo.indicators.primary.resource, bounds).then(
-        (data) => {
-          console.log("Locs loaded: ", data);
-          // Actualizamos 'locs' usando el estado previo
-          setGeoData((prevGeoData) => ({
-            ...prevGeoData,
-            locs: data,
-          }));
-        }
-      );
+      get_locs(currentInfo.indicators.primary.resource, bounds).then((data) => {
+        console.log("Locs loaded: ", data);
+        // Actualizamos 'locs' usando el estado previo
+        setGeoData((prevGeoData) => ({
+          ...prevGeoData,
+          locs: data,
+        }));
+      });
     }
   };
 
@@ -158,8 +160,6 @@ function Dashboard() {
             resolve();
           })
           .catch(reject);
-
-        
       }
     });
   };
@@ -245,7 +245,7 @@ function Dashboard() {
   };
 
   const hideIsocronas = () => {
-    setCurrentInfo({ ...currentInfo, viewInfo: null, isocronas: false });
+    setCurrentInfo({ ...currentInfo, viewInfo: null, isocronas: false, filter: null }); // FILTER NULL DESACTIVA EL FILTRO, IGUAL NO ES LO QUE QUEREMOS todo: revisar
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
@@ -269,19 +269,31 @@ function Dashboard() {
     if (result.type === "barrio") {
       console.log("Barrio clicked: ", result);
       let id = result.id;
-      setCurrentInfo({
-        ...currentInfo,
-        filter: { barrio: id },
-        viewInfo: viewInfo,
+
+      get_plots_by_area_id("B", id).then((data) => {
+        console.log("Parcelas: ", data);
+        let featureCollection = {
+          type: "FeatureCollection",
+          features: data,
+        };
+        const area_ids = getAreaIdsFromData(data);
+        setCurrentInfo((prevState) => ({
+          ...prevState,
+          filter: { barrio: id },
+          viewInfo: viewInfo,
+          area_ids: area_ids
+        }));
+
+        setGeoData({ ...geodata, polygons: featureCollection });
+        setCurrentPolygonsType("PC");
       });
-      setCurrentPolygonsType("B");
     } else if (result.type === "calle" || result.type === "parcela") {
       console.log("Calle clicked: ", result);
       let name = result.name;
       setCurrentInfo({
         ...currentInfo,
         filter: { calle: name },
-        viewInfo: viewInfo,
+        viewInfo: viewInfo
       });
       let parcelas = result.parcelas;
       if (parcelas) {

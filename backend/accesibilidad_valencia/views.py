@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas, get_carril_bici, search, locs_inside_geometry
+from .mongo import get_mongo_connection, get_geospatial_data, get_indicadores_accesibilidad, get_isocronas, get_carril_bici, search, locs_inside_geometry, get_parcelas_by_barrio, get_parcelas_by_distrito
 from .utils import build_geojson_from_features
 # Create your views here.
 
@@ -167,6 +167,23 @@ class IsocronasView(View):
 
         except json.JSONDecodeError:
             return HttpResponseBadRequest("El cuerpo de la solicitud debe ser JSON válido.")
+
+
+class FilterPlotsView(View):
+    def get(self, request, area_code, area_id):
+        if area_code not in config['polygons']:
+            return JsonResponse({"error": "Invalid area code"}, status=400)
+        if not area_id:
+            return JsonResponse({"error": "Area id is required"}, status=400)
+
+        if area_code == 'B':
+            parcelas = get_parcelas_by_barrio(area_id)
+        elif area_code == 'D':
+            parcelas = get_parcelas_by_distrito(area_id)      
+        else:
+            return JsonResponse({"error": "Invalid area code"}, status=400)
+        
+        return JsonResponse(parcelas, safe=False)
 
 
 class CarrilBiciView(View):

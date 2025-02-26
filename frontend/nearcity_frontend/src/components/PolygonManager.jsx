@@ -97,15 +97,70 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick }) => {
     console.log("Current Info: ", currentInfo);
     console.log("GeojsonData: ", geojsonData);
     if (!geojsonData || !currentInfo.filter) return;
-    if (currentInfo.filter.barrio) {
-      console.log("Filtering by barrio: ", currentInfo.filter.barrio);
-      const area_id = currentInfo.filter.barrio;
-      const feature = find_polygon_with_area_id(geojsonData, area_id);
-      if (feature) {
-        showOnlyClickedPolygon(feature);
+    
+    if (leftLayerGroup) {
+    // Limpiar los LayerGroups actuales
+    leftLayerGroup.clearLayers();
+    }
+    if (rightLayerGroup){
+      rightLayerGroup.clearLayers();
+    }
+    
+    // Crear panes si aún no existen
+    if (!map.getPane('leftPane')) {
+      map.createPane('leftPane').style.zIndex = 650;
+    }
+
+    if (swipeOpen && !map.getPane('rightPane')) {
+      map.createPane('rightPane').style.zIndex = 650;
+    }
+
+    // Añadir GeoJSON completo al layer group de la izquierda (esto es para el render inicial)
+    const newLeftLayer = L.geoJSON(geojsonData, {
+      style: styleFeatureMainIndicator,
+      onEachFeature: onEachFeature,
+      pane: 'leftPane',
+    }).addTo(leftLayerGroup);
+
+    // Añadir el layer group al mapa
+    leftLayerGroup.addTo(map);
+
+    setLeftLayerGroup(leftLayerGroup); // Actualizar el estado con el layer group
+
+    if (swipeOpen) {
+      const rightLayerGroup = L.layerGroup(); // Crear un nuevo layer group para la derecha
+      const newRightLayer = L.geoJSON(geojsonData, {
+        style: styleFeatureSecondIndicator,
+        onEachFeature: onEachFeature,
+        pane: 'rightPane',
+      }).addTo(rightLayerGroup);
+
+      rightLayerGroup.addTo(map); // Añadir al mapa
+
+      setRightLayerGroup(rightLayerGroup); // Actualizar el estado con el layer group derecho
+
+    } else {
+
+      setRightLayerGroup(null); // Limpiar el rightLayer si swipeOpen está cerrado
+
+    }
+
+    // Limpiar las capas cuando se desmonte el componente
+
+    return () => {
+      if (map.hasLayer(leftLayerGroup)) {
+        map.removeLayer(leftLayerGroup);
+      }
+      if (rightLayerGroup && map.hasLayer(rightLayerGroup)) {
+        map.removeLayer(rightLayerGroup);
       }
     }
-  }, [geojsonData, currentInfo.filter, currentInfo.indicatorStatus])
+
+  // }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map, currentInfo.filter]);
+  
+    
+    
+  }, [geojsonData, currentIndicator, secondIndicator, swipeOpen, map, currentInfo.filter])
  
   useEffect(() => { // se oculta el poligono la poner la isocrona por culpa de este useEffect y de su dependencia con isocronas
     if (!geojsonData || currentInfo.filter?.barrio || currentInfo.isocronas) return;

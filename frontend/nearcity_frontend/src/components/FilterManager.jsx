@@ -12,13 +12,7 @@ const FilterManager = ({ config, geojsonData }) => {
   useEffect(() => {
     
     if (!geojsonData || !currentInfo.filter) return;
-    if (currentInfo.filter.barrio){
-        let area_id = currentInfo.filter.barrio;
-        let polygon = find_polygon_with_area_id(geojsonData, area_id);
-        if (!polygon) return;
-        let bounds = L.geoJSON(polygon).getBounds();
-        map.fitBounds(bounds);
-    } else if (currentInfo.filter.calle){
+    if (currentInfo.filter.calle || currentInfo.filter.barrio || currentInfo.filter.distrito) {
         let bounds = L.geoJSON(geojsonData).getBounds();
         map.fitBounds(bounds);
     }
