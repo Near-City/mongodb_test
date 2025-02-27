@@ -126,6 +126,7 @@ class IndicatorsView(View):
             area_collection = (config['polygons'].get(
                 area) or config['defaults']['polygon'])['collection']
 
+            
             # Obtener los indicadores de accesibilidad
             indicators = get_indicadores_accesibilidad(
                 area_collection, area_ids, resource, extra, time, user, red)
@@ -195,8 +196,17 @@ class CarrilBiciView(View):
 class SearchView(View):
     def get(self, request):
         query = request.GET.get('query')
-        search_results = search(query)
+        only_barrios = request.GET.get('only_barrios') == 'true'
+        only_distritos = request.GET.get('only_distritos') == 'true' 
+        only_calles = request.GET.get('only_calles') == 'true'
+        search_results = search(query, only_barrios, only_distritos, only_calles)
         return JsonResponse(search_results, safe=False)
+
+# Example requests:
+# /api/search?query=centro&only_barrios=true  -> Search only in neighborhoods
+# /api/search?query=centro&only_distritos=true -> Search only in districts  
+# /api/search?query=centro&only_calles=true -> Search only in streets
+# /api/search?query=centro -> Search in all collections
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')

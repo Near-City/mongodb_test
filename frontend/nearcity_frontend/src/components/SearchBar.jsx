@@ -1,20 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 
-function SearchBar({ onSearch, results, onResultClick }) {
+function SearchBar({
+  onSearch,
+  results,
+  onResultClick,
+  // Permite personalizar la posición/estilos del contenedor
+  // Si no se especifica, se usará el valor por defecto
+  positionClass = "relative top-4 left-12 w-full max-w-lg z-[999]",
+}) {
   const [isFocused, setIsFocused] = useState(false);
-  const [inputValue, setInputValue] = useState(""); // Estado para manejar el valor del input
+  const [inputValue, setInputValue] = useState("");
   const containerRef = useRef(null);
 
   const handleInputChange = (value) => {
     console.log("Input value:", value);
     setInputValue(value);
-    onSearch(value); // Llama al método onSearch con el nuevo valor
+    onSearch(value);
   };
 
   const handleClickOutside = (event) => {
     if (containerRef.current && !containerRef.current.contains(event.target)) {
-      setInputValue(""); // Cierra los resultados
+      setInputValue(""); // Cierra los resultados al hacer clic fuera
     }
   };
 
@@ -26,10 +33,7 @@ function SearchBar({ onSearch, results, onResultClick }) {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative top-4 left-12 w-full max-w-lg z-[999]"
-    >
+    <div ref={containerRef} className={positionClass}>
       {/* Input de búsqueda */}
       <div
         className={`flex items-center transition-all duration-300 ease-in-out bg-white shadow-md border ${
@@ -42,10 +46,11 @@ function SearchBar({ onSearch, results, onResultClick }) {
         <input
           type="text"
           placeholder="Buscar barrios, calles o parcelas..."
-          className="flex-1 p-3 pl-4 pr-4 text-gray-700 placeholder-gray-400 focus:outline-none rounded-full [color-scheme:light]" // [color-scheme:light] es una clase de Tailwind CSS que cambia el color del placeholder para que los navegadores NO lo muestren en modo oscuro
+          className="flex-1 p-3 pl-4 pr-4 text-gray-700 placeholder-gray-400 focus:outline-none rounded-full [color-scheme:light]"
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          value={inputValue}
         />
       </div>
 
@@ -58,8 +63,8 @@ function SearchBar({ onSearch, results, onResultClick }) {
               className="p-3 flex justify-between hover:bg-blue-100 cursor-pointer text-gray-700"
               onClick={() => onResultClick(result)}
             >
-              <span>{result.name}</span> {/* Muestra el nombre del barrio */}
-              <span className="text-gray-500 text-sm">{result.type}</span> {/* Muestra el tipo */}
+              <span>{result.name}</span>
+              <span className="text-gray-500 text-sm">{result.type}</span>
             </div>
           ))}
         </div>

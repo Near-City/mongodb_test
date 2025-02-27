@@ -212,9 +212,20 @@ def buscar_barrio(barrios_collection, termino):
 
     return [format_resultados_barrios(barrio.get("properties", {}).get("C_DISTBAR"), barrio.get("properties", {}).get("N_BAR") ) for barrio in resultados]
 
-def search(termino):
-    resultados = buscar_parcela(db["parcelas"], termino) + buscar_barrio(db["barrios"], termino)
-    
+def search(termino, only_barrios = False, only_distritos = False, only_calles = False):
+    # resultados = buscar_parcela(db["parcelas"], termino) + buscar_barrio(db["barrios"], termino)
+
+    if only_barrios:
+        resultados = buscar_barrio(db["barrios"], termino)
+    elif only_distritos:   
+        # resultados = buscar_distrito(db["distritos"], termino)
+        pass
+    elif only_calles:
+        # resultados = buscar_calle(db["calles"], termino)
+        buscar_parcela(db["parcelas"], termino)
+    else:
+        resultados = buscar_parcela(db["parcelas"], termino) + buscar_barrio(db["barrios"], termino)
+
     # #sino da error al serializar el _id
     # for resultado in resultados:
     #     if "_id" in resultado:

@@ -139,13 +139,16 @@ export const get_carril_bici = async () => {
 
 }
 
-export const get_search = async (search) => {
+export const get_search = async (search, onlyBarrios = false, onlyDistritos = false, onlyCalles = false) => {
   const params = new URLSearchParams();
   params.append('query', search);
+  params.append('only_barrios', onlyBarrios);
+  params.append('only_distritos', onlyDistritos);
+  params.append('only_calles', onlyCalles);
+  
   return api.get(`search/?${params.toString()}`).then((response) => {
     return response.data;
   });
-
 }
 
 export const get_plots_by_area_id = async (area_code, area_id) => {

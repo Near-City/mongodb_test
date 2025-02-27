@@ -14,6 +14,7 @@ import {
   EllipsisHorizontalCircleIcon,
   UserIcon,
   TruckIcon,
+  BoltIcon,
 } from "@heroicons/react/24/outline";
 
 import { FaBuilding, FaWalking } from "react-icons/fa";
@@ -23,6 +24,7 @@ import { useState, useContext, useEffect } from "react";
 import ConfigContext from "@contexts/configContext";
 import CurrentInfoContext from "@contexts/currentInfoContext";
 import { updateIndicatorInCurrentInfo } from "@mixins/currentInfoUtils";
+import { tooltip } from "leaflet";
 
 export const LocIconButton = ({ onClick, children }) => {
   return (
@@ -144,15 +146,25 @@ const IndicatorSelector = ({
         action: () => handleLocChange("loc7"),
       },
       {
-        tooltip: "Ambulatorios",
+        tooltip: "Centros de salud",
         icon: <BuildingOffice2Icon className="h-6 w-6" />,
-        action: () => alert("Submenu Item 2"),
+        action: () => handleLocChange("loc8"),
       },
       {
-        tooltip: "Clínicas",
+        tooltip: "Centros de especialidades",
         icon: <BuildingOffice2Icon className="h-6 w-6" />,
-        action: () => alert("Submenu Item 3"),
+        action: () => handleLocChange("loc9"),
       },
+      {
+        tooltip: "Centros de día y CEAs",
+        icon: <BuildingOffice2Icon className="h-6 w-6" />,
+        action: () => handleLocChange("loc10"),
+      },
+      {
+        tooltip: "Residencias",
+        icon: <BuildingOffice2Icon className="h-6 w-6" />,
+        action: () => handleLocChange("loc11"),
+      }
     ],
     educacionSubmenu: [
       {
@@ -161,19 +173,34 @@ const IndicatorSelector = ({
         action: (setMenu) => setMenu("categorias"),
       },
       {
-        tooltip: "Universidades",
+        tooltip: "Centros Infantil",
         icon: <AcademicCapIcon className="h-6 w-6" />,
-        action: () => alert("Submenu Item 1"),
+        action: () => handleLocChange("loc1"),
       },
       {
-        tooltip: "Colegios",
+        tooltip: "Centros Primaria",
         icon: <BuildingLibraryIcon className="h-6 w-6" />,
-        action: () => alert("Submenu Item 2"),
+        action: () => handleLocChange("loc2"),
       },
       {
-        tooltip: "Academias",
+        tooltip: "Centros secundaria",
         icon: <BuildingLibraryIcon className="h-6 w-6" />,
-        action: () => alert("Submenu Item 3"),
+        action: () => handleLocChange("loc3"),
+      },
+      {
+        tooltip: "Centros Bachillerato",
+        icon: <BuildingLibraryIcon className="h-6 w-6" />,
+        action: () => handleLocChange("loc4"),
+      },
+      {
+        tooltip: "Centros FP",
+        icon: <BuildingLibraryIcon className="h-6 w-6" />,
+        action: () => handleLocChange("loc5"),
+      },
+      {
+        tooltip: "Centros Educación Personas Adultas",
+        icon: <BuildingLibraryIcon className="h-6 w-6" />,
+        action: () => handleLocChange("loc6"),
       },
     ],
     ocioSubmenu: [
@@ -212,6 +239,11 @@ const IndicatorSelector = ({
         icon: <TruckIcon className="h-6 w-6" />,
         action: () => alert("Metro"),
       },
+      {
+        tooltip: "Bici",
+        icon: <BoltIcon className="h-6 w-6" />,
+        action: () => alert("Bici"),
+      }
     ],
   };
 

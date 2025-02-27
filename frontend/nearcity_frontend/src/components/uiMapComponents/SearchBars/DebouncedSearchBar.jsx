@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "@components/SearchBar";
-function DebouncedSearchBar({ onSearch, results, onResultClick }) {
+function DebouncedSearchBar({ onSearch, results, onResultClick, positionClass }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -15,7 +15,7 @@ function DebouncedSearchBar({ onSearch, results, onResultClick }) {
   }, [searchTerm, onSearch]);
 
   return (
-    <SearchBar onSearch={setSearchTerm} results={results} onResultClick={onResultClick}/>
+    <SearchBar onSearch={setSearchTerm} results={results} onResultClick={onResultClick} positionClass={positionClass}/>
   );
 }
 
