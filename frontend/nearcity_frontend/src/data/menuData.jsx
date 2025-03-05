@@ -62,5 +62,5 @@ export const timeMenuData = [
 export const networkMenuData = [
   { label: "Caminando", icon: UserIcon, onClick: () => alert("Caminando") },
   { label: "Bicicleta", icon: UserGroupIcon, onClick: () => alert("Bicicleta") },
-  { label: "Transporte Público", icon: GlobeAltIcon, onClick: () => alert("Transporte Público") },
+  { label: "Metro", icon: GlobeAltIcon, onClick: () => alert("Transporte Público") },
 ];

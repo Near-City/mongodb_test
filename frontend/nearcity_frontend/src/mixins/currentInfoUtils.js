@@ -36,3 +36,20 @@ export const updateIndicatorInCurrentInfo = (
     };
   });
 };
+
+export const setIndicatorInCurrentInfo = (
+  setCurrentInfo, 
+  indicatorName,
+  indicatorProperties) => {
+  console.log("Setting indicator in current info: ", indicatorName, indicatorProperties);
+  setCurrentInfo((prevState) => {
+    const indicators = prevState.indicators || {};
+    return {
+      ...prevState,
+      indicators: {
+        ...indicators,
+        [indicatorName]: indicatorProperties,
+      },
+    };
+  });
+}

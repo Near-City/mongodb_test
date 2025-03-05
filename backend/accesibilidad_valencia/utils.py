@@ -21,6 +21,14 @@ def format_resultados_barrios(id, nombre):
         "name": nombre.capitalize()
     }
 
+def format_resultados_distritos(id, nombre):
+    return {
+        "type": "distrito",
+        "id": id,
+        "name": nombre.capitalize()
+    }
+
+
 import re
 
 def extraer_primer_numero(texto):

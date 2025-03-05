@@ -80,6 +80,8 @@ const IndicatorSelector = ({
   radius = 7,
   selectedTimeElement = null,
   setSelectedTimeElement = null,
+  selectedLocElement = null,
+  setSelectedLocElement = null,
   gap = 52,
 }) => {
   const config = useContext(ConfigContext);
@@ -143,12 +145,12 @@ const IndicatorSelector = ({
       {
         tooltip: "Hospitales",
         icon: <BuildingOffice2Icon className="h-6 w-6" />,
-        action: () => handleLocChange("loc7"),
+        action: () => handleLocChange("loc7", <BuildingOffice2Icon className="h-6 w-6" />),
       },
       {
         tooltip: "Centros de salud",
         icon: <BuildingOffice2Icon className="h-6 w-6" />,
-        action: () => handleLocChange("loc8"),
+        action: () => handleLocChange("loc8", <BuildingOffice2Icon className="h-6 w-6" />),
       },
       {
         tooltip: "Centros de especialidades",
@@ -177,7 +179,7 @@ const IndicatorSelector = ({
         icon: <AcademicCapIcon className="h-6 w-6" />,
         action: () => handleLocChange("loc1"),
       },
-      {
+      {  
         tooltip: "Centros Primaria",
         icon: <BuildingLibraryIcon className="h-6 w-6" />,
         action: () => handleLocChange("loc2"),
@@ -278,8 +280,9 @@ const IndicatorSelector = ({
   };
 
   // Funciones para actualizar los indicadores
-  const handleLocChange = (loc) => {
+  const handleLocChange = (loc, element) => {
     console.log("Loc: ", loc);
+    if (setSelectedLocElement) setSelectedLocElement(element);
     updateIndicatorInCurrentInfo(
       setCurrentInfo,
       indicatorName,
@@ -332,6 +335,7 @@ const IndicatorSelector = ({
         startAngle={startAngle}
         radius={radius}
         rotationAngle={rotationAngle}
+        selectedToggleContent={selectedLocElement}
       />
       <ReusableCircleMenu
         menus={redes}

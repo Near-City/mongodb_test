@@ -51,30 +51,9 @@ const TileSelector = ({ onClick, isSatellite, activeExtraButtons, setActiveExtra
                 handleMenuButtonClick('transito');
               }}
             >
-              Transporte público
+              Metro
             </button>
-            <button
-              className={`w-20 h-20 bg-relief-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeExtraButtons.relieve ? 'border-2 border-blue-400' : ''
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleMenuButtonClick('relieve');
-              }}
-            >
-              Relieve
-            </button>
-            <button
-              className={`w-20 h-20 bg-traffic-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
-                activeExtraButtons.trafico ? 'border-2 border-blue-400' : ''
-              }`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleMenuButtonClick('trafico');
-              }}
-            >
-              Tráfico
-            </button>
+            
             <button
               className={`w-20 h-20 bg-bike-image bg-cover bg-center rounded-md flex flex-col items-center justify-end text-xs font-semibold text-gray-700 transition duration-300 transform hover:scale-105 active:scale-95 ${
                 activeExtraButtons.carril_bici ? 'border-2 border-blue-400' : ''

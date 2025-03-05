@@ -88,6 +88,9 @@ const BaseMap = ({
   const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] =
     useState(null);
 
+    const [selectedLocElementPrimary, setSelectedLocElementPrimary] = useState(null);
+    const [selectedLocElementSecondary, setSelectedLocElementSecondary] = useState(null);
+
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
     if (map) {
@@ -229,6 +232,8 @@ const BaseMap = ({
                   radius={9}
                   selectedTimeElement={selectedTimeElementPrimary}
                   setSelectedTimeElement={setSelectedTimeElementPrimary}
+                  selectedLocElement={selectedLocElementPrimary}
+                  setSelectedLocElement={setSelectedLocElementPrimary}
                 />
                 <IndicatorSelector
                   position="right-center"
@@ -239,6 +244,8 @@ const BaseMap = ({
                   radius={9}
                   selectedTimeElement={selectedTimeElementSecondary}
                   setSelectedTimeElement={setSelectedTimeElementSecondary}
+                  selectedLocElement={selectedLocElementSecondary}
+                  setSelectedLocElement={setSelectedLocElementSecondary}
                 />
               </>
             ) : (
@@ -247,6 +254,8 @@ const BaseMap = ({
                 layout="row"
                 selectedTimeElement={selectedTimeElementPrimary}
                 setSelectedTimeElement={setSelectedTimeElementPrimary}
+                selectedLocElement={selectedLocElementPrimary}
+                setSelectedLocElement={setSelectedLocElementPrimary}
               />
             )}
           </div>

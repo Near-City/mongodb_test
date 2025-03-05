@@ -44,8 +44,9 @@ const ReusableCircleMenu = ({
             key={index}
             onClick={() => {
               // Actualizamos el contenido del toggle según el ítem seleccionado.
-              if (setSelectedToggleContent)
+              if (setSelectedToggleContent) {
                 setSelectedToggleContent(item.label || item.icon);
+              }
               // Ejecutamos la acción del ítem (pasándole setCurrentMenu en caso de que se cambie de submenu)
               if (item.action) {
                 item.action(setCurrentMenu);
