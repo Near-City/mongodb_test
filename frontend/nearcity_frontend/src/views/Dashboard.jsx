@@ -23,7 +23,6 @@ import { inRange } from "../mixins/utils.js";
 
 import { getCsrfToken } from "../api/geo.js";
 import { getAreaIdsFromData } from "../mixins/utils.js";
-import { filter } from "d3";
 
 function Dashboard() {
   const config = useContext(ConfigContext);
@@ -86,6 +85,16 @@ function Dashboard() {
 
     console.log("Current polygons type: ", currentPolygonsType);
   }, [currentPolygonsType]);
+
+  useEffect(() => {
+    console.log("User Origin Changed: ", currentInfo?.userInfo?.userOrigin);
+    if (!currentInfo?.userInfo?.userOrigin) return;
+    const userOrigin = currentInfo.userInfo.userOrigin;
+    
+    setTimeout(() => {
+      handleSearchResultClick(userOrigin);
+    }, 1000);
+  }, [currentInfo?.userInfo?.userOrigin]);
 
   useEffect(() => {
     console.log("poligonos changed:", geodata);
@@ -257,6 +266,22 @@ function Dashboard() {
       // setGeoData({ ...geodata, searchResults: data });
     });
   }, []);
+
+
+  const loadArea = (areaId, type) => {
+    return new Promise((resolve, reject) => {
+      get_plots_by_area_id(type, areaId).then((data) => {
+        console.log("Parcelas: ", data);
+        let featureCollection = {
+          type: "FeatureCollection",
+          features: data,
+        };
+        setGeoData({ ...geodata, polygons: featureCollection });
+        setCurrentPolygonsType("PC");
+        resolve();
+      });
+    });
+  };
 
   const handleSearchResultClick = (result) => {
     console.log("Search result clicked: ", result);

@@ -1,8 +1,11 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { get_search } from "@api/geo";
 import DebouncedSearchBar from "@components/uiMapComponents/SearchBars/DebouncedSearchBar";
 import ReusableCircleMenu from "@components/uiMapComponents/CircularMenus/ReusableCircleMenu";
 import { setIndicatorInCurrentInfo } from "@mixins/currentInfoUtils";
+import CurrentInfoContext from "@contexts/currentInfoContext";
+import { useNavigate } from "react-router-dom";
+
 import {
   EnvelopeIcon,
   QuestionMarkCircleIcon,
@@ -356,6 +359,9 @@ const TimeSelector = ({ onTimeSelected }) => {
 
 
 function Preselection() {
+  const { currentInfo, setCurrentInfo } = useContext(CurrentInfoContext);
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("distrito");
   const [results, setResults] = useState([
     "Resultado 1",
@@ -406,7 +412,26 @@ function Preselection() {
       transport: selectedTransport,
       time: selectedTime,
     });
-  }
+
+    setCurrentInfo((prevInfo) => {
+      return {
+        ...prevInfo,
+        userInfo: {
+          userOrigin: selectedOrigin,
+          userLocation: selectedLoc,
+          userTransport: selectedTransport,
+          userTime: selectedTime,
+        }
+      };
+      
+    });
+
+    // Mover a la ruta /dashboard
+    navigate("/dashboard");
+
+
+
+  };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
