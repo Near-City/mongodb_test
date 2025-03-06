@@ -312,6 +312,25 @@ function Dashboard() {
         setGeoData({ ...geodata, polygons: featureCollection });
         setCurrentPolygonsType("PC");
       });
+    } else if (result.type === "distrito") {
+      console.log("Distrito clicked: ", result);
+      let id = result.id;
+      get_plots_by_area_id("D", id).then((data) => {
+        console.log("Parcelas: ", data);
+        let featureCollection = {
+          type: "FeatureCollection",
+          features: data,
+        };
+        const area_ids = getAreaIdsFromData(data);
+        setCurrentInfo((prevState) => ({
+          ...prevState,
+          filter: { distrito: id },
+          viewInfo: viewInfo,
+          area_ids: area_ids
+        }));
+        setGeoData({ ...geodata, polygons: featureCollection });
+        setCurrentPolygonsType("PC");
+      });
     } else if (result.type === "calle" || result.type === "parcela") {
       console.log("Calle clicked: ", result);
       let name = result.name;

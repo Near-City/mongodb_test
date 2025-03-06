@@ -19,6 +19,8 @@ import IndicatorSelector from "./uiMapComponents/uiModels/IndicatorSelector";
 import TutorialExample from "@components/Tutorial/TutorialExample.jsx";
 import { FaQuestion, FaBuilding } from "react-icons/fa";
 import { BiHide, BiShow } from "react-icons/bi";
+import { TiSortNumerically } from "react-icons/ti";
+import { TbListLetters } from "react-icons/tb";
 
 const MapBounds = () => {
   const map = useMap();
@@ -83,6 +85,8 @@ const BaseMap = ({
   });
   const [tutorial, setTutorial] = useState(false);
   const [hideIndicatorSelectors, setHideIndicatorSelectors] = useState(false);
+  const [userIndicatorPreferences, setUserIndicatorPreferences] = useState(
+    "categorical");
   const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] =
     useState(null);
   const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] =
@@ -159,15 +163,6 @@ const BaseMap = ({
       id: "swipe",
     },
     {
-      icon: hideIndicatorSelectors ? (
-        <BiShow className="text-white" />
-      ) : (
-        <BiHide className="text-white" />
-      ),
-      onClick: () => setHideIndicatorSelectors(!hideIndicatorSelectors),
-      id: "hide-indicators",
-    },
-    {
       icon: showLocs ? (
         <FaBuilding className="text-white" />
       ) : (
@@ -176,6 +171,20 @@ const BaseMap = ({
       onClick: () => setShowLocs(!showLocs),
       id: "show-locs",
     },
+    {
+      icon: userIndicatorPreferences === "categorical" ? (
+        <TiSortNumerically className="text-white" />
+      ) : (
+        <TbListLetters className="text-white" />
+      ),
+      onClick: () =>
+        setUserIndicatorPreferences(
+          userIndicatorPreferences === "categorical"
+            ? "numerical"
+            : "categorical"
+        ),
+      id: "change-indicator-preferences",
+    }
   ];
 
   return (
@@ -193,6 +202,7 @@ const BaseMap = ({
           geojsonData={areasData?.polygons}
           swipeOpen={swipeMenuOpen}
           onPolygonClick={onPolygonClick}
+          userIndicatorPref={userIndicatorPreferences}
         />
         <IsocronasManager
           config={config}
@@ -214,6 +224,33 @@ const BaseMap = ({
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
       >
         <div className="relative w-full h-full pointer-events-auto">
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[999] pointer-events-auto">
+          <button
+            onClick={() => setHideIndicatorSelectors(!hideIndicatorSelectors)}
+            className={`
+              flex items-center justify-center
+              w-16 h-6
+              bg-gray-900 bg-opacity-70
+              hover:bg-opacity-90
+              rounded-t-md
+              transition-all duration-200
+              text-white text-opacity-80
+              shadow-md
+              focus:outline-none
+            `}
+            aria-label={hideIndicatorSelectors ? "Show indicators" : "Hide indicators"}
+          >
+            {hideIndicatorSelectors ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+        </div>
           <ViewInfoBar />
           <ButtonGroup buttonsInfo={topLeftButtons} />
           <div className={` 

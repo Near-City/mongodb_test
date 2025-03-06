@@ -2,7 +2,7 @@ from pymongo import MongoClient
 from unidecode import unidecode
 from Levenshtein import distance
 from .utils import format_resultados_distritos, format_resultados_barrios, format_resultados_parcelas, normalizar_y_extraer_numero, serialize_object_ids, prettify_street_name
-
+import random
 db = None
 STOPWORDS = [
     "avenida", "av",
@@ -92,8 +92,7 @@ def get_indicadores_accesibilidad(area=None, area_ids=None, resource=None, extra
 
     print(query)
     result = collection.find(query)
-
-    return {str(r['area_id']): r['value'] for r in result}
+    return {str(r['area_id']): {"categorical":r['value'], "numerical": random.uniform(0, 1)} for r in result}
 
 
 def get_isocronas(area_id, time, user, red):
