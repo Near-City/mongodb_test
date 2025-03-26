@@ -1,10 +1,6 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import LeafletMapWithD3Overlay from "../components/LeafletMapWithD3Overlay.jsx";
 import BaseMap from "../components/BaseMap.jsx";
-import SidePanel from "../components/SidePanel.jsx";
-import MapToolbar from "../components/MapToolBar.jsx";
-import TopBar from "../components/TopBar.jsx";
-import SidebarMenu from "@components/navigation/SidebarMenu.jsx";
 
 import IndicatorsManager from "@components/IndicatorsManager.jsx";
 
@@ -68,19 +64,20 @@ function Dashboard() {
     if (!currentPolygonsType) return;
 
     refreshPolygons(currentPolygonsType);
-    let area_ids = currentInfo.area_ids;
+    let currentInfoCopy = { ...currentInfo };
     if (!config.polygons[currentPolygonsType].lazyLoading) {
-      area_ids = null;
+      currentInfoCopy = {
+        ...currentInfoCopy,
+        area_ids: null,
+      };
     }
 
-    
-
-    setCurrentInfo((prevState) => ({
-      ...prevState,
-      area_ids: area_ids,
+    currentInfoCopy = {
+      ...currentInfoCopy,
       area: currentPolygonsType,
-      indicatorStatus: "loading",
-    }));
+    };
+
+    setCurrentInfo(currentInfoCopy);
 
     console.log("Current polygons type: ", currentPolygonsType);
   }, [currentPolygonsType]);
@@ -89,7 +86,7 @@ function Dashboard() {
     console.log("User Origin Changed: ", currentInfo?.userInfo?.userOrigin);
     if (!currentInfo?.userInfo?.userOrigin) return;
     const userOrigin = currentInfo.userInfo.userOrigin;
-
+    
     setTimeout(() => {
       handleSearchResultClick(userOrigin);
     }, 1000);
@@ -100,7 +97,7 @@ function Dashboard() {
   }, [geodata]);
 
   const handleUserMovedMap = (zoom, bounds) => {
-    console.log('User moved', currentInfo);
+    console.log(currentInfo);
     if (currentInfo?.isocronas || currentInfo?.filter) return; // Si hay isocronas o hay un filtro activo, no hacer nada
     console.log("Zoom level: ", zoom);
     console.log("Bounds: ", bounds);
@@ -243,7 +240,7 @@ function Dashboard() {
     }
 
     console.log("Area ID: ", e.target.feature.properties);
-    
+
     return instruction;
   };
 
@@ -253,12 +250,7 @@ function Dashboard() {
   };
 
   const hideIsocronas = () => {
-    setCurrentInfo({
-      ...currentInfo,
-      viewInfo: null,
-      isocronas: false,
-      filter: null,
-    }); // FILTER NULL DESACTIVA EL FILTRO, IGUAL NO ES LO QUE QUEREMOS todo: revisar
+    setCurrentInfo({ ...currentInfo, viewInfo: null, isocronas: false, filter: null }); // FILTER NULL DESACTIVA EL FILTRO, IGUAL NO ES LO QUE QUEREMOS todo: revisar
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
@@ -270,6 +262,7 @@ function Dashboard() {
       // setGeoData({ ...geodata, searchResults: data });
     });
   }, []);
+
 
   const loadArea = (areaId, type) => {
     return new Promise((resolve, reject) => {
@@ -291,13 +284,8 @@ function Dashboard() {
     let viewInfo = {
       text: `Visualizando ${result.type} ${result.name}`,
       onClose: () => {
-        setCurrentInfo((prevState) => ({
-          ...prevState,
-          viewInfo: null,
-          filter: null,
-        }));
+        setCurrentInfo({ ...currentInfo, viewInfo: null });
       },
-      
     };
     if (result.type === "barrio") {
       console.log("Barrio clicked: ", result);
@@ -314,8 +302,7 @@ function Dashboard() {
           ...prevState,
           filter: { barrio: id },
           viewInfo: viewInfo,
-          area_ids: area_ids,
-          area: "PC"
+          area_ids: area_ids
         }));
 
         setGeoData({ ...geodata, polygons: featureCollection });
@@ -335,8 +322,7 @@ function Dashboard() {
           ...prevState,
           filter: { distrito: id },
           viewInfo: viewInfo,
-          area_ids: area_ids,
-          area: "PC"
+          area_ids: area_ids
         }));
         setGeoData({ ...geodata, polygons: featureCollection });
         setCurrentPolygonsType("PC");
@@ -344,15 +330,12 @@ function Dashboard() {
     } else if (result.type === "calle" || result.type === "parcela") {
       console.log("Calle clicked: ", result);
       let name = result.name;
-      let parcelas = result.parcelas;
-      const area_ids = getAreaIdsFromData(result.parcelas);
       setCurrentInfo({
         ...currentInfo,
         filter: { calle: name },
-        area_ids: area_ids,
-        viewInfo: viewInfo,
-        area: "PC"
+        viewInfo: viewInfo
       });
+      let parcelas = result.parcelas;
       if (parcelas) {
         console.log("Parcelas: ", parcelas);
         let featureCollection = {

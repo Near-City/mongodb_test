@@ -15,6 +15,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
 
   const [leftLayerGroup, setLeftLayerGroup] = useState(L.layerGroup());
   const [rightLayerGroup, setRightLayerGroup] = useState(null);
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
 
   const colorScale = d3
     .scaleLinear()
@@ -36,7 +37,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
     if (!polygonHasIndicator(areaId, indicator)) {
       return config.colors.accesibilidad.ERROR || "gray";
     }
-    console.log("UserIndicatorPref: ", userIndicatorPref);
+    
     if (userIndicatorPref === "numerical") {
       if (!indicator[areaId]?.numerical) {
         return config.colors.accesibilidad.ERROR || "gray";
@@ -44,7 +45,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
       console.log("ColorScale: ", colorScale(indicator[areaId]?.numerical));
       return colorScale(indicator[areaId]?.numerical);
     }
-    console.log("Categorical: ", indicator[areaId]?.categorical);
+    
     return config.colors.accesibilidad[indicator[areaId]?.categorical];
   };
 
@@ -69,37 +70,41 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
     // if (!polygonHasIndicator(e.target.feature.properties.area_id, currentIndicator)) return; // No hacer nada si no hay indicador
     let instruction = onPolygonClick(e); // Propagar el evento al padre
     if (instruction === "hide") {
+      console.log("Hiding polygon");
+      // Limpiar ambos layer groups completamente 
+      
+
       showOnlyClickedPolygon(e.target.feature);
     }
   };
 
   const showOnlyClickedPolygon = (feature) => {
+    setSelectedPolygon(feature); // Guardas el polígono seleccionado
+  
     // Crear un nuevo geojson solo con el polígono clicado
     const newGeojson = {
       type: "FeatureCollection",
       features: [feature],
     };
-
-    // Limpiar ambos layer groups completamente
+  
     leftLayerGroup.clearLayers();
     if (rightLayerGroup) {
       rightLayerGroup.clearLayers();
     }
-
-    // Añadir solo el polígono clicado al layer group de la izquierda
-    const newLeftLayer = L.geoJSON(newGeojson, {
+  
+    L.geoJSON(newGeojson, {
       style: styleFeatureMainIndicator,
       onEachFeature: onEachFeature,
       pane: "leftPane",
     }).addTo(leftLayerGroup);
-
-    // Añadir el layer group al mapa si aún no está añadido
+  
     if (!map.hasLayer(leftLayerGroup)) {
       leftLayerGroup.addTo(map);
     }
-
-    console.log("Showing clicked polygon:", newLeftLayer);
+  
+    console.log("Showing clicked polygon:", feature);
   };
+  
 
   const onEachFeature = (feature, layer) => {
     layer.on({
@@ -116,7 +121,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
   useEffect(() => {
     console.log("Current Info: ", currentInfo);
     console.log("GeojsonData: ", geojsonData);
-    if (!geojsonData || !currentInfo.filter) return;
+    if (!geojsonData || selectedPolygon) return;
 
     if (leftLayerGroup) {
       // Limpiar los LayerGroups actuales
@@ -182,6 +187,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
     map,
     currentInfo.filter,
     userIndicatorPref,
+    selectedPolygon
   ]);
 
   useEffect(() => {

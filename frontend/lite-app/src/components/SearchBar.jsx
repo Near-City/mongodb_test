@@ -17,6 +17,7 @@ function SearchBar({
   const containerRef = useRef(null);
 
   const handleInputChange = (value) => {
+    console.log("Input value:", value);
     setInputValue(value);
     setSelectedResult(null); // Limpiar resultado seleccionado al escribir
     onSearch(value);
