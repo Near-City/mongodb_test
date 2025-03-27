@@ -36,6 +36,7 @@ function Dashboard() {
   const [geodata, setGeoData] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
   const [showLocs, setShowLocs] = useState(false);
+  const [prevViewInfo, setPrevViewInfo] = useState(null); // Para guardar el texto anterior por si hay varias acciones consecutivas, esto podría convertirse en una lista si hay demasiadas
 
   useEffect(() => {
     getCsrfToken().then((token) => {
@@ -226,6 +227,7 @@ function Dashboard() {
             currentInfo.indicators.primary.red
           ].toLowerCase();
         console.log(currentInfo);
+        setPrevViewInfo(currentInfo.viewInfo); // Guardamos el texto anterior para poder volver a él si es necesario
         let info_text = `Visualizando la Isocrona de ${resource_name} a ${time_name} en la red ${red_name}`;
         setCurrentInfo({
           ...currentInfo,
@@ -252,13 +254,21 @@ function Dashboard() {
     hideIsocronas();
   };
 
+
+  const getRestoredViewInfo = (prevViewInfo) => {
+    // Si hay un texto anterior, lo restauramos, sino, devolvemos null
+    return prevViewInfo ? prevViewInfo : null;
+  };
+  
+
   const hideIsocronas = () => {
+    console.log("Hiding isocronas");
     setCurrentInfo({
       ...currentInfo,
-      viewInfo: null,
+      viewInfo: getRestoredViewInfo(prevViewInfo),
       isocronas: false,
-      filter: null,
-    }); // FILTER NULL DESACTIVA EL FILTRO, IGUAL NO ES LO QUE QUEREMOS todo: revisar
+      
+    }); // Si queremos que al cerrar la isocrona se elimine el filtro, añadir filter: null
     setGeoData({ ...geodata, isocronas: null, locs: null });
   };
 
@@ -285,11 +295,9 @@ function Dashboard() {
       });
     });
   };
-
-  const handleSearchResultClick = (result) => {
-    console.log("Search result clicked: ", result);
+  const createFilterViewInfoObject = (filter) => {
     let viewInfo = {
-      text: `Visualizando ${result.type} ${result.name}`,
+      text: `Visualizando ${filter.type} ${filter.name}`,
       onClose: () => {
         setCurrentInfo((prevState) => ({
           ...prevState,
@@ -297,8 +305,13 @@ function Dashboard() {
           filter: null,
         }));
       },
-      
     };
+    return viewInfo;
+  };
+
+  const handleSearchResultClick = (result) => {
+    console.log("Search result clicked: ", result);
+    let viewInfo = createFilterViewInfoObject(result);
     if (result.type === "barrio") {
       console.log("Barrio clicked: ", result);
       let id = result.id;

@@ -39,7 +39,7 @@ const IsocronasManager = ({ config, geojsonData, onPolygonClick }) => {
         zoomToRestore = zoomToRestore + 1;
       }
       // Si geojsonData es nulo, restaurar la vista inicial
-      map.setView(initialView.center, zoomToRestore);
+      map.flyTo(initialView.center, zoomToRestore, { animate: true, duration: 1 });
       return;
     }
 
@@ -68,7 +68,7 @@ const IsocronasManager = ({ config, geojsonData, onPolygonClick }) => {
     const bounds = newLayer.getBounds(); // Obtener los límites de la capa
     if (bounds.isValid()) {
       setInitialView({ center: bounds.getCenter(), zoom: map.getZoom() });
-      map.fitBounds(bounds, { padding: [50, 50] }); // Ajustar el mapa a los límites
+      map.flyToBounds(bounds, { padding: [50, 50], animate: true, duration: 0.5 });
     }
 
     // Limpiar las capas cuando se desmonte el componente

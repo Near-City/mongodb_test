@@ -15,7 +15,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
 
   const [leftLayerGroup, setLeftLayerGroup] = useState(L.layerGroup());
   const [rightLayerGroup, setRightLayerGroup] = useState(null);
-  const [selectedPolygon, setSelectedPolygon] = useState(null);
+  const [selectedPolygonLayer, setSelectedPolygonLayer] = useState(null);
 
   const colorScale = d3
     .scaleLinear()
@@ -79,29 +79,28 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
   };
 
   const showOnlyClickedPolygon = (feature) => {
-    setSelectedPolygon(feature); // Guardas el polígono seleccionado
-  
+    
     // Crear un nuevo geojson solo con el polígono clicado
-    const newGeojson = {
-      type: "FeatureCollection",
-      features: [feature],
-    };
-  
+    
     leftLayerGroup.clearLayers();
     if (rightLayerGroup) {
       rightLayerGroup.clearLayers();
     }
-  
-    L.geoJSON(newGeojson, {
+    if (selectedPolygonLayer) {
+      map.removeLayer(selectedPolygonLayer); // Limpiar el polígono seleccionado anterior para que no se acumulen
+    }
+    
+    const newGeojson = {
+      type: "FeatureCollection",
+      features: [feature],
+    };
+    const layer = L.geoJSON(newGeojson, {
       style: styleFeatureMainIndicator,
       onEachFeature: onEachFeature,
       pane: "leftPane",
-    }).addTo(leftLayerGroup);
-  
-    if (!map.hasLayer(leftLayerGroup)) {
-      leftLayerGroup.addTo(map);
-    }
-  
+    }).addTo(map);
+    
+    setSelectedPolygonLayer(layer); // Guardas el polígono seleccionado para poder eliminarlo después
     console.log("Showing clicked polygon:", feature);
   };
   
@@ -121,7 +120,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
   useEffect(() => {
     console.log("Current Info: ", currentInfo);
     console.log("GeojsonData: ", geojsonData);
-    if (!geojsonData || selectedPolygon) return;
+    if (!geojsonData ) return;
 
     if (leftLayerGroup) {
       // Limpiar los LayerGroups actuales
@@ -187,7 +186,7 @@ const PolygonManager = ({ config, geojsonData, swipeOpen, onPolygonClick, userIn
     map,
     currentInfo.filter,
     userIndicatorPref,
-    selectedPolygon
+    selectedPolygonLayer
   ]);
 
   useEffect(() => {

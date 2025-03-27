@@ -72,7 +72,8 @@ const BaseMap = ({
   handleSearch,
   searchResults,
   onResultClick,
-  showLocs, setShowLocs
+  showLocs,
+  setShowLocs,
 }) => {
   const [swipeMenuOpen, setSwipeMenuOpen] = useState(false);
   const [map, setMap] = useState(null);
@@ -85,15 +86,17 @@ const BaseMap = ({
   });
   const [tutorial, setTutorial] = useState(false);
   const [hideIndicatorSelectors, setHideIndicatorSelectors] = useState(false);
-  const [userIndicatorPreferences, setUserIndicatorPreferences] = useState(
-    "categorical");
+  const [userIndicatorPreferences, setUserIndicatorPreferences] =
+    useState("categorical");
   const [selectedTimeElementPrimary, setSelectedTimeElementPrimary] =
     useState(null);
   const [selectedTimeElementSecondary, setSelectedTimeElementSecondary] =
     useState(null);
 
-    const [selectedLocElementPrimary, setSelectedLocElementPrimary] = useState(null);
-    const [selectedLocElementSecondary, setSelectedLocElementSecondary] = useState(null);
+  const [selectedLocElementPrimary, setSelectedLocElementPrimary] =
+    useState(null);
+  const [selectedLocElementSecondary, setSelectedLocElementSecondary] =
+    useState(null);
 
   // useEffect para añadir las capas después de que el mapa está disponible
   useEffect(() => {
@@ -172,11 +175,12 @@ const BaseMap = ({
       id: "show-locs",
     },
     {
-      icon: userIndicatorPreferences === "categorical" ? (
-        <TiSortNumerically className="text-white" />
-      ) : (
-        <TbListLetters className="text-white" />
-      ),
+      icon:
+        userIndicatorPreferences === "categorical" ? (
+          <TiSortNumerically className="text-white" />
+        ) : (
+          <TbListLetters className="text-white" />
+        ),
       onClick: () =>
         setUserIndicatorPreferences(
           userIndicatorPreferences === "categorical"
@@ -184,7 +188,7 @@ const BaseMap = ({
             : "categorical"
         ),
       id: "change-indicator-preferences",
-    }
+    },
   ];
 
   return (
@@ -194,6 +198,7 @@ const BaseMap = ({
         zoom={12}
         style={{ height: "100%", width: "100%", position: "relative" }}
         ref={setMap}
+        scrollWheelZoom={true}
       >
         <TutorialExample run={tutorial} setRun={setTutorial} />
         <GeoJSON data={areasData?.polygons} style={{ color: "white" }} />
@@ -210,7 +215,10 @@ const BaseMap = ({
           onPolygonClick={onIsocronaClick}
         />
         <FilterManager config={config} geojsonData={areasData?.polygons} />
-        {showLocs && <LocsManager config={config} geojsonData={areasData?.locs} />}
+        {/* DOS OPCIONES PARA QUE SE MUESTREN LOS LOCS EN EL MAPA, O BIEN ESTÁ ACTIVADO LO DE VERLOS SIEMPRE, O BIEN ESTÁN ACTIVAS LAS ISOCRONAS */}
+        {(showLocs || areasData?.isocronas) && (
+          <LocsManager config={config} geojsonData={areasData?.locs} />
+        )}
         <ExtraManager
           config={config}
           geojsonData={areasData?.extra}
@@ -224,10 +232,10 @@ const BaseMap = ({
         className="absolute top-0 left-0 w-full h-full pointer-events-none"
       >
         <div className="relative w-full h-full pointer-events-auto">
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[999] pointer-events-auto">
-          <button
-            onClick={() => setHideIndicatorSelectors(!hideIndicatorSelectors)}
-            className={`
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[999] pointer-events-auto">
+            <button
+              onClick={() => setHideIndicatorSelectors(!hideIndicatorSelectors)}
+              className={`
               flex items-center justify-center
               w-16 h-6
               bg-gray-900 bg-opacity-70
@@ -238,26 +246,51 @@ const BaseMap = ({
               shadow-md
               focus:outline-none
             `}
-            aria-label={hideIndicatorSelectors ? "Show indicators" : "Hide indicators"}
-          >
-            {hideIndicatorSelectors ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
-        </div>
+              aria-label={
+                hideIndicatorSelectors ? "Show indicators" : "Hide indicators"
+              }
+            >
+              {hideIndicatorSelectors ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
           <ViewInfoBar />
           <ButtonGroup buttonsInfo={topLeftButtons} />
-          <div className={` 
+          <div
+            className={` 
           transition-all duration-100 
-          ${hideIndicatorSelectors ? 'opacity-0  pointer-events-none':'opacity-100 '}
+          ${
+            hideIndicatorSelectors
+              ? "opacity-0  pointer-events-none"
+              : "opacity-100 "
+          }
         `}
- >
+          >
             {swipeMenuOpen ? (
               <>
                 <IndicatorSelector
